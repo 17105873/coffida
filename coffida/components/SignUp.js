@@ -1,29 +1,38 @@
 import React, { Component } from 'react';
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native';
-import { AsyncStorage } from '@react-native-community/async-storage';
 
-class Login extends Component{
+class SignUp extends Component{
   constructor(props){
     super(props);
 
     this.state = {
+      first_name: '',
+      last_name: '',
       email: '',
       password: ''
     }
   }
 
-  logIn = async () => {
-    
+  signUp() {
+  
     //Validation
+    if (this.state.first_name == ""){
+      throw "Please Enter Forename"
+    }
+    
+    if (this.state.last_name == ""){
+      throw "Please Enter Surname"
+    }
+
     if (this.state.email == ""){
       throw "Please Enter Email Address"
     }
 
-    if (this.state.password == ""){
+    if (this.state.password == "" || this.state.password.length < 5){
       throw "Please Enter Password"
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/user/login", {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/user", {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -31,18 +40,17 @@ class Login extends Component{
       body: JSON.stringify(this.state)
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 201){
         return response.json()
       } else if (response.status === 400) {
-        throw "Invalid Email Or Password";
+        throw "Invalid Credentials";
       } else {
         throw "Something went wrong. Please try again";
       }
     })
-    .then(async (responseJson) => {
+    .then((responseJson) => {
       console.log(responseJson);
-      await AsyncStorage.setItem('@session_token', responseJson.token);
-      this.props.navigation.navigate("Home");
+      this.props.navigation.navigate("Login");
     })
     .catch((error) => {
       console.log(error);
@@ -52,12 +60,17 @@ class Login extends Component{
   }
 
   render(){
-
-    const navigation = this.props.navigation;
-
     return(
       <View>
           <ScrollView>
+            <View>
+              <Text>Forename:</Text>
+              <TextInput placeholder="Enter Forename" onChangeText={(first_name) => this.setState({first_name})} value={this.state.first_name} />
+            </View>
+            <View>
+              <Text>Surname:</Text>
+              <TextInput placeholder="Enter Surname" onChangeText={(last_name) => this.setState({last_name})} value={this.state.last_name} />
+            </View>
             <View>
               <Text>Email Address:</Text>
               <TextInput placeholder="Enter Email Address" onChangeText={(email) => this.setState({email})} value={this.state.email} />
@@ -67,10 +80,7 @@ class Login extends Component{
               <TextInput placeholder="Enter Password" onChangeText={(password) => this.setState({password})} value={this.state.password} />
             </View>
             <View>
-              <TouchableOpacity onPress={() => this.logIn()}>
-                <Text>Log In</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <TouchableOpacity onPress={() => this.signUp()}>
                 <Text>Sign Up</Text>
               </TouchableOpacity>
             </View>
@@ -81,5 +91,4 @@ class Login extends Component{
 
 }
 
-
-export default Login;
+export default SignUp;

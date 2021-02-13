@@ -1,19 +1,27 @@
+import 'react-native-gesture-handler';
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Button } from 'react-native';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import Login from './components/Login';
+import SignUp from './components/SignUp';
 
-class HelloWorldApp extends Component{
+const Stack = createStackNavigator();
+
+class Index extends Component{
   render(){
 
-  const name = "Luke";
-
     return (
-        <View>
-          <Login />
-        </View>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="SignUp" component={SignUp} />
+        </Stack.Navigator>
+      </NavigationContainer>
     );
   }
 }
 
-export default HelloWorldApp;
+export default Index;
