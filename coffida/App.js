@@ -7,21 +7,25 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Login from './components/Login';
 import SignUp from './components/SignUp';
+import Index from './components/Index';
+import Home from './components/Home';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
-class Index extends Component{
-  render(){
+class App extends Component {
+  render() {
 
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Index">
+          <Stack.Screen name="Index" component={Index} />
+          <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="SignUp" component={SignUp} />
+          <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign Up' }} />
         </Stack.Navigator>
       </NavigationContainer>
     );
   }
 }
 
-export default Index;
+export default App;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native';
-import { AsyncStorage } from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Login extends Component{
   constructor(props){
@@ -13,8 +13,11 @@ class Login extends Component{
   }
 
   logIn = async () => {
+
     
-    //Validation
+    const navigation = this.props.navigation;
+
+    //Validation TO DO
     if (this.state.email == ""){
       throw "Please Enter Email Address"
     }
@@ -42,7 +45,14 @@ class Login extends Component{
     .then(async (responseJson) => {
       console.log(responseJson);
       await AsyncStorage.setItem('@session_token', responseJson.token);
-      this.props.navigation.navigate("Home");
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Home'
+          },
+        ],
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -52,8 +62,6 @@ class Login extends Component{
   }
 
   render(){
-
-    const navigation = this.props.navigation;
 
     return(
       <View>
@@ -69,9 +77,6 @@ class Login extends Component{
             <View>
               <TouchableOpacity onPress={() => this.logIn()}>
                 <Text>Log In</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                <Text>Sign Up</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
