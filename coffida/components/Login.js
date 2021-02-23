@@ -49,7 +49,7 @@ class Login extends Component{
         index: 0,
         routes: [
           {
-            name: 'Home'
+            name: 'HomeIndex'
           },
         ],
       })

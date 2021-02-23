@@ -1,19 +1,18 @@
-import React, { Component } from 'react';
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import React, { Component } from 'react'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity } from 'react-native'
 
-class Details extends Component{
-  constructor(props){
-    super(props);
+class Details extends Component {
+  constructor (props) {
+    super(props)
   }
 
-  render(){
-    return(
+  render () {
+    return (
       <View>
-          <Text>Details</Text>
+        <Text>Details</Text>
       </View>
-    );
+    )
   }
-
 }
 
-export default Details;
+export default Details

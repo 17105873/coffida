@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 
 class SignUp extends Component {
   constructor (props) {
@@ -11,6 +12,33 @@ class SignUp extends Component {
       email: '',
       password: ''
     }
+  }
+
+  logOut = async () => {
+
+    const value = await AsyncStorage.getItem('@session_token')
+
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/logout', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': value
+      }
+    })
+      .then(async (response) => {
+        if (response.status === 200) {
+          await AsyncStorage.clear();
+          this.props.navigation.navigate('Index')
+        } else if (response.status === 401) {
+          throw 'Unathorized'
+        } else {
+          throw 'Something went wrong. Please try again'
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        ToastAndroid.show(error, ToastAndroid.SHORT)
+      })
   }
 
   signUp () {
@@ -78,8 +106,8 @@ class SignUp extends Component {
             <TextInput placeholder='Enter Password' onChangeText={(password) => this.setState({ password })} value={this.state.password} />
           </View>
           <View>
-            <TouchableOpacity onPress={() => this.signUp()}>
-              <Text>Sign Up</Text>
+            <TouchableOpacity onPress={() => this.logOut()}>
+              <Text>Log Out</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

@@ -1,30 +1,59 @@
-import React, { Component } from 'react';
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native';
+import React, { Component } from 'react'
+import { Text, View, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage';
+
+import image from '../resources/img/index_bg.jpg'
 
 class Index extends Component {
-
-  render()
-  {
-
+  render () {
     const navigation = this.props.navigation
 
-    return(
-      <View>
-        <View>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text>Log In</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
+    return (
+      <View style={styles.container}>
+        <ImageBackground source={image} style={styles.image}>
+          <View>
+            <Text style={styles.header}>Coffida</Text>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.button}>Log In</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.button}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
       </View>
-    );
+    )
   }
-
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column'
+  },
+  image: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center'
+  },
+  buttonContainer: {
+    flex: 0.25
+  },
+  button: {
+    textAlign: 'center',
+    color: 'red',
+    fontSize: 30,
+    backgroundColor: 'white'
+  },
+  header: {
+    color: 'white',
+    fontSize: 50,
+    textAlign: 'center'
+  }
+})
 
-export default Index;
+export default Index
