@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Text, View, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
-import AsyncStorage from '@react-native-community/async-storage';
 
 import image from '../resources/img/index_bg.jpg'
 

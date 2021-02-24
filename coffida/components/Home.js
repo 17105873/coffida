@@ -2,12 +2,7 @@ import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
 import { Text, View } from 'react-native'
-import AsyncStorage from '@react-native-community/async-storage';
-
-import { NavigationContainer } from '@react-navigation/native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-
-const Tab = createBottomTabNavigator()
+import AsyncStorage from '@react-native-community/async-storage'
 
 class Home extends Component {
   constructor (props) {

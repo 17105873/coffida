@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 
 class Details extends Component {
   constructor (props) {
@@ -9,8 +10,6 @@ class Details extends Component {
       isLoading: true,
       details: []
     }
-
-    console.log(this.props.params.item_id)
   }
 
   componentDidMount() {
@@ -34,13 +33,44 @@ class Details extends Component {
 
   getDetails = async () => {
 
-    const value = 1
-
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + value, {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/1", {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        details: responseJson
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
+  favouriteLocation = async () => {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/1/favourite", {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      },
+      body: {
+        'loc_id': 1
       }
     })
     .then((response) => {
@@ -79,6 +109,14 @@ class Details extends Component {
           <Text>Details</Text>
           <View>
             <Text>{this.state.details.location_name}</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => this.favouriteLocation()}>
+              <Text>Favourite Location</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <Text>Write Review</Text>
           </View>
         </View>
       )

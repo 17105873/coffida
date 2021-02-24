@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import React, { Component } from 'react'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 
 class Login extends Component{
   constructor(props){
@@ -14,16 +14,17 @@ class Login extends Component{
 
   logIn = async () => {
 
-    
     const navigation = this.props.navigation;
 
     //Validation TO DO
     if (this.state.email == ""){
-      throw "Please Enter Email Address"
+      ToastAndroid.show("Please Enter Email Address", ToastAndroid.SHORT);
+      return
     }
 
     if (this.state.password == ""){
-      throw "Please Enter Password"
+      ToastAndroid.show("Please Enter Password", ToastAndroid.SHORT);
+      return
     }
 
     return fetch("http://10.0.2.2:3333/api/1.0.0/user/login", {
