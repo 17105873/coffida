@@ -19,7 +19,7 @@ class HomeIndex extends Component {
   constructor (props) {
     super(props)
   }
-/*
+
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn();
@@ -29,7 +29,7 @@ class HomeIndex extends Component {
   componentWillUnmount() {
     this.unsubscribe()
   }
-*/
+
   checkLoggedIn = async () => {
     const token = await AsyncStorage.getItem('@session_token')
     if (token == null) {
