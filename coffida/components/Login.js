@@ -46,6 +46,7 @@ class Login extends Component{
     .then(async (responseJson) => {
       console.log(responseJson);
       await AsyncStorage.setItem('@session_token', responseJson.token);
+      await AsyncStorage.setItem('@user_id', responseJson.user_id);
       navigation.reset({
         index: 0,
         routes: [

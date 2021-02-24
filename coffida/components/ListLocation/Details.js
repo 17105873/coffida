@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
 class Details extends Component {
@@ -8,6 +8,7 @@ class Details extends Component {
 
     this.state = {
       isLoading: true,
+      favLocation: false,
       details: []
     }
   }
@@ -62,9 +63,18 @@ class Details extends Component {
     })
   }
 
-  favouriteLocation = async () => {
+  favouriteLocation = async ({favLoc}) => {
+    
+    var action
+
+    if (favLoc) {
+      action = 'post'
+    } else {
+      action = 'delete'
+    }
+
     return fetch("http://10.0.2.2:3333/api/1.0.0/location/1/favourite", {
-      method: 'post',
+      method: action,
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
@@ -75,7 +85,7 @@ class Details extends Component {
     })
     .then((response) => {
       if(response.status === 200){
-        return response.json()
+        return
       } else if (response.status === 401) {
         ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
         this.props.navigation.navigate('Login')
@@ -83,10 +93,9 @@ class Details extends Component {
         throw "Something went wrong. Please try again";
       }
     })
-    .then((responseJson) => {
+    .then(() => {
       this.setState({
-        isLoading: false,
-        details: responseJson
+        favLocation: favLoc ? true : false
       })
     })
     .catch((error) => {
@@ -96,6 +105,17 @@ class Details extends Component {
   }
 
   render () {
+
+    let favLocText
+    let favLoc
+
+    if(this.state.favLocation == true) {
+      favLocText = 'Unfavourite Location'
+      favLoc = false;
+    } else {
+      favLocText = 'Favourite Location'
+      favLoc = true;
+    }
 
     if(this.state.isLoading == true) {
       return (
@@ -111,8 +131,8 @@ class Details extends Component {
             <Text>{this.state.details.location_name}</Text>
           </View>
           <View>
-            <TouchableOpacity onPress={() => this.favouriteLocation()}>
-              <Text>Favourite Location</Text>
+            <TouchableOpacity onPress={() => this.favouriteLocation({favLoc})}>
+              <Text>{favLocText}</Text>
             </TouchableOpacity>
           </View>
           <View>

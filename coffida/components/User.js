@@ -7,6 +7,7 @@ class SignUp extends Component {
     super(props)
 
     this.state = {
+      userDetails: [],
       first_name: '',
       last_name: '',
       email: '',
@@ -14,15 +15,69 @@ class SignUp extends Component {
     }
   }
 
+  componentDidMount() {
+    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+      this.checkLoggedIn()
+
+      this.getUserDetails()
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
+
+  checkLoggedIn = async () => {
+    const token = await AsyncStorage.getItem('@session_token')
+    if (token == null) {
+      this.props.navigation.navigate('Login')
+    }
+  }
+
+
+  getUserDetails = async () => {
+
+    const token = await AsyncStorage.getItem('@session_token')
+    const userId = await AsyncStorage.getItem('@user_id')
+
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': token
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        userDetails: responseJson
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
   logOut = async () => {
 
-    const value = await AsyncStorage.getItem('@session_token')
+    const token = await AsyncStorage.getItem('@session_token')
 
     return fetch('http://10.0.2.2:3333/api/1.0.0/user/logout', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': value
+        'X-Authorization': token
       }
     })
       .then(async (response) => {
