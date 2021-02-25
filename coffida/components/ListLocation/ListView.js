@@ -88,7 +88,7 @@ class ListView extends Component {
                 <TouchableOpacity
                   onPress={() => {
                     this.props.navigation.navigate('Details', {
-                      itemId: item.location_id
+                      locationId: item.location_id
                     });
                   }}
                 >

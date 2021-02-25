@@ -14,7 +14,7 @@ class Login extends Component{
 
   logIn = async () => {
 
-    const navigation = this.props.navigation;
+    const navigation = this.props.navigation
 
     //Validation TO DO
     if (this.state.email == ""){
@@ -46,7 +46,7 @@ class Login extends Component{
     .then(async (responseJson) => {
       console.log(responseJson);
       await AsyncStorage.setItem('@session_token', responseJson.token);
-      await AsyncStorage.setItem('@user_id', responseJson.user_id);
+      await AsyncStorage.setItem('@user_id', responseJson.id.toString());
       navigation.reset({
         index: 0,
         routes: [

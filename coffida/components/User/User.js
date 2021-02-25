@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import { CommonActions } from '@react-navigation/native'
 
 class SignUp extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
-      userDetails: [],
       first_name: '',
       last_name: '',
       email: '',
@@ -60,7 +60,9 @@ class SignUp extends Component {
     .then((responseJson) => {
       this.setState({
         isLoading: false,
-        userDetails: responseJson
+        first_name: responseJson.first_name,
+        last_name: responseJson.last_name,
+        email: responseJson.email
       })
     })
     .catch((error) => {
@@ -70,6 +72,8 @@ class SignUp extends Component {
   }
 
   logOut = async () => {
+
+    const navigation = this.props.navigation
 
     const token = await AsyncStorage.getItem('@session_token')
 
@@ -83,7 +87,14 @@ class SignUp extends Component {
       .then(async (response) => {
         if (response.status === 200) {
           await AsyncStorage.clear();
-          this.props.navigation.navigate('Index')
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Index' },
+              ],
+            })
+          );
         } else if (response.status === 401) {
           throw 'Unathorized'
         } else {
@@ -96,43 +107,47 @@ class SignUp extends Component {
       })
   }
 
-  signUp () {
+  updateDetails = async () => {
+
+    const userId = await AsyncStorage.getItem('@user_id')
+    const token = await AsyncStorage.getItem('@session_token')
+
     // Validation
     if (this.state.first_name == '') {
-      throw 'Please Enter Forename'
+      ToastAndroid.show('Please Enter Forename', ToastAndroid.SHORT)
     }
 
     if (this.state.last_name == '') {
-      throw 'Please Enter Surname'
+      ToastAndroid.show('Please Enter Surname', ToastAndroid.SHORT)
     }
 
     if (this.state.email == '') {
-      throw 'Please Enter Email Address'
+      ToastAndroid.show('Please Enter Email Address', ToastAndroid.SHORT)
     }
 
     if (this.state.password == '' || this.state.password.length < 5) {
       throw 'Please Enter Password'
     }
 
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user', {
-      method: 'post',
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
+      method: 'patch',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Authorization': token
       },
       body: JSON.stringify(this.state)
     })
       .then((response) => {
-        if (response.status === 201) {
-          return response.json()
+        if (response.status === 200) {
+          return
         } else if (response.status === 400) {
           throw 'Invalid Credentials'
         } else {
           throw 'Something went wrong. Please try again'
         }
       })
-      .then((responseJson) => {
-        console.log(responseJson)
-        this.props.navigation.navigate('Login')
+      .then(() => {
+        console.log("updated user") //Show Success Message
       })
       .catch((error) => {
         console.log(error)
@@ -159,6 +174,11 @@ class SignUp extends Component {
           <View>
             <Text>Password:</Text>
             <TextInput placeholder='Enter Password' onChangeText={(password) => this.setState({ password })} value={this.state.password} />
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => this.updateDetails()}>
+              <Text>Update Details</Text>
+            </TouchableOpacity>
           </View>
           <View>
             <TouchableOpacity onPress={() => this.logOut()}>

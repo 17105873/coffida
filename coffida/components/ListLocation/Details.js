@@ -34,7 +34,9 @@ class Details extends Component {
 
   getDetails = async () => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/1", {
+    const locationId = this.props.route.params.locationId
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationId, {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
@@ -65,6 +67,7 @@ class Details extends Component {
 
   favouriteLocation = async ({favLoc}) => {
     
+    const locationId = this.props.route.params.locationId
     var action
 
     if (favLoc) {
@@ -73,14 +76,14 @@ class Details extends Component {
       action = 'delete'
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/1/favourite", {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationId + "/favourite", {
       method: action,
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
       },
       body: {
-        'loc_id': 1
+        'loc_id': locationId
       }
     })
     .then((response) => {
