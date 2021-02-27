@@ -58,7 +58,6 @@ class Details extends Component {
     })
     .then((responseJson) => {
       this.setState({
-        isLoading: false,
         locationName: responseJson.location_name,
         details: responseJson
       })
@@ -166,7 +165,7 @@ class Details extends Component {
       }
     })
     .then(() => {
-      //Do Something
+      this.getLikedReviews()
     })
     .catch((error) => {
       console.log(error);
@@ -174,11 +173,35 @@ class Details extends Component {
     })
   }
 
-  deleteReview(reviewId) {
-
+  deleteReview = async(reviewId) => {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId, {
+      method: 'delete',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then(() => {
+      this.getDetails()
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
   }
 
   renderLikeButton(currentReviewId) {
+
     if(this.state.likedReviews.every((item) => item.review.review_id !== currentReviewId)){
       return(
         <TouchableOpacity
@@ -200,16 +223,31 @@ class Details extends Component {
     }
   }
 
-  renderDeleteButton(currentReviewId) {
-    if(this.state.userReviews.every((item) => item.review.review_id == currentReviewId)){
-      return(
-        <TouchableOpacity
-          onPress={() => {
-            this.deleteReview(currentReviewId);
-          }}>
-          <Text>Delete</Text>
-        </TouchableOpacity>
-      )
+  renderDeleteButton(currentItem) {
+
+    if(this.state.userReviews.length !== 0) {
+      if(this.state.userReviews.every((item) => item.review.review_id !== currentItem.review_id)){
+        // Do Nothing
+      } else {
+        return(
+          <View>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('Review', {
+                  review_id: currentItem.review_id
+                });
+              }}>
+              <Text>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                this.deleteReview(currentItem.review_id);
+              }}>
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )
+      }
     }
   }
 
@@ -262,7 +300,7 @@ class Details extends Component {
               <View>
                 <Text>{item.review_body}</Text>
                 {this.renderLikeButton(item.review_id)}
-                {this.renderDeleteButton(item.review_id)}
+                {this.renderDeleteButton(item)}
               </View>
             )}
             keyExtractor={(item,index) => item.review_id.toString()}
