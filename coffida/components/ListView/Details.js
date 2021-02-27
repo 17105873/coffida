@@ -11,9 +11,9 @@ class Details extends Component {
       favLocation: false,
       locationId: this.props.route.params.locationId,
       locationName: '',
-      details: [],
-      userReviews: [],
-      likedReviews: []
+      likeButton: [],
+      actionButton: [],
+      details: []
     }
   }
 
@@ -22,7 +22,7 @@ class Details extends Component {
       this.checkLoggedIn()
 
       this.getDetails()
-      this.getLikedReviews()
+      this.getUserSpecific()
     })
   }
 
@@ -109,7 +109,7 @@ class Details extends Component {
     })
   }
 
-  getLikedReviews = async() => {
+  getUserSpecific = async() => {
 
     const token = await AsyncStorage.getItem('@session_token')
     const userId = await AsyncStorage.getItem('@user_id')
@@ -132,10 +132,11 @@ class Details extends Component {
       }
     })
     .then((responseJson) => {
+      this.initialiseLikeBtn(responseJson)
+      this.initialiseActionBtn(responseJson)
+      this.initialiseFavouriteLoc(responseJson)
       this.setState({
-        isLoading: false,
-        userReviews: responseJson.reviews,
-        likedReviews: responseJson.liked_reviews
+        isLoading: false
       })
     })
     .catch((error) => {
@@ -143,6 +144,58 @@ class Details extends Component {
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
 
+  }
+
+  initialiseLikeBtn(responseJson) {
+    let likeBtn = {}
+
+    // Loop through location reviews & liked reviews and assign true/false to corresponding object item
+    this.state.details.location_reviews.map((item) => {        
+      responseJson.liked_reviews.map((likedItem) => {
+        if (item.review_id == likedItem.review.review_id) {
+          likeBtn[item.review_id] = true
+        }
+      })
+
+      if(!likeBtn[item.review_id]) {
+        likeBtn[item.review_id] = false
+      }
+    })
+
+    this.setState({
+      likeButton: likeBtn
+    })
+  }
+
+  initialiseActionBtn(responseJson) {
+    let actionBtn = {}
+
+    // Loop through location reviews & user written reviews and assign true/false to corresponding object item
+    this.state.details.location_reviews.map((item) => {        
+      responseJson.reviews.map((userItem) => {
+        if (item.review_id == userItem.review.review_id) {
+          actionBtn[item.review_id] = true
+        }
+      })
+
+      if(!actionBtn[item.review_id]) {
+        actionBtn[item.review_id] = false
+      }
+    })
+
+    this.setState({
+      actionButton: actionBtn
+    })
+  }
+
+  initialiseFavouriteLoc(responseJson) {
+    responseJson.favourite_locations.map((item) => {
+      if (item.location_id == this.state.locationId) {
+        this.setState({
+          favLocation: true
+        })
+      }
+    })
   }
 
   reviewAction = async(reviewId, method) => {
@@ -165,7 +218,10 @@ class Details extends Component {
       }
     })
     .then(() => {
-      this.getLikedReviews()
+        this.state.likeButton[reviewId] = ( method == 'post' ) ? true : false
+        this.setState({
+          isLoading: false
+        })
     })
     .catch((error) => {
       console.log(error);
@@ -202,7 +258,7 @@ class Details extends Component {
 
   renderLikeButton(currentReviewId) {
 
-    if(this.state.likedReviews.every((item) => item.review.review_id !== currentReviewId)){
+    if(!this.state.likeButton[currentReviewId]) {
       return(
         <TouchableOpacity
           onPress={() => {
@@ -225,29 +281,32 @@ class Details extends Component {
 
   renderDeleteButton(currentItem) {
 
-    if(this.state.userReviews.length !== 0) {
-      if(this.state.userReviews.every((item) => item.review.review_id !== currentItem.review_id)){
-        // Do Nothing
-      } else {
-        return(
-          <View>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('Review', {
-                  review_id: currentItem.review_id
-                });
-              }}>
-              <Text>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.deleteReview(currentItem.review_id);
-              }}>
-              <Text>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        )
-      }
+    if(this.state.actionButton[currentItem.review_id]){
+      return(
+        <View>
+          <TouchableOpacity
+            onPress={() => {
+              this.props.navigation.navigate('Review', {
+                review_id: currentItem.review_id,
+                locationId: this.state.details.location_id,
+                locationName: this.state.details.location_name,
+                overall_rating: currentItem.overall_rating,
+                price_rating: currentItem.price_rating,
+                quality_rating: currentItem.quality_rating,
+                clenliness_rating: currentItem.clenliness_rating,
+                review_body: currentItem.review_body
+              });
+            }}>
+            <Text>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              this.deleteReview(currentItem.review_id);
+            }}>
+            <Text>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      )
     }
   }
 

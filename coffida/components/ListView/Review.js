@@ -13,6 +13,8 @@ class Review extends Component {
       isLoading: true,
       locationId: this.props.route.params.locationId,
       locationName: this.props.route.params.locationName,
+      reviewType: 'Submit',
+      reviewId: 0,
       min_rating: 0,
       max_rating: 5,
       overall_rating: 0,
@@ -26,6 +28,8 @@ class Review extends Component {
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
+
+      this.checkUpdate()
     })
   }
 
@@ -40,7 +44,33 @@ class Review extends Component {
     }
   }
 
-  submitReview = async () => {
+  checkUpdate() {
+    if(this.props.route.params.review_id !== undefined) {
+      this.setState({
+        overall_rating: this.props.route.params.overall_rating,
+        price_rating: this.props.route.params.price_rating,
+        quality_rating: this.props.route.params.quality_rating,
+        clenliness_rating: this.props.route.params.clenliness_rating,
+        review_body: this.props.route.params.review_body,
+        reviewType: 'Update',
+        reviewId: this.props.route.params.review_id
+      })
+    }
+  }
+
+  submitReview = async (reviewType) => {
+
+    var endPoint;
+    var method;
+
+    if (reviewType =='Submit') {
+      endPoint = "http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review"
+      method = 'post'
+    } else {
+      endPoint = "http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId
+      method = 'patch'
+    }
+
     const navigation = this.props.navigation
 
     //Validation TO DO
@@ -54,8 +84,8 @@ class Review extends Component {
       return
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review", {
-      method: 'post',
+    return fetch(endPoint, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
@@ -63,7 +93,7 @@ class Review extends Component {
       body: JSON.stringify(this.state)
     })
     .then((response) => {
-      if(response.status === 201){
+      if(response.status === 201 || response.status === 200){
         return
       } else if (response.status === 400) {
         throw "Invalid Email Or Password";
@@ -138,8 +168,13 @@ class Review extends Component {
               numberOfLines={4} />
           </View>
           <View>
-            <TouchableOpacity onPress={() => this.submitReview()}>
-              <Text>Submit</Text>
+            <TouchableOpacity onPress={() => this.props.navigation.navigation.goBack()}>
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => this.submitReview(this.state.reviewType)}>
+              <Text>{this.state.reviewType}</Text>
             </TouchableOpacity>
           </View>
         </View>
