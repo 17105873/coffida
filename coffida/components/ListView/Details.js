@@ -11,7 +11,9 @@ class Details extends Component {
       favLocation: false,
       locationId: this.props.route.params.locationId,
       locationName: '',
-      details: []
+      details: [],
+      userReviews: [],
+      likedReviews: []
     }
   }
 
@@ -20,6 +22,7 @@ class Details extends Component {
       this.checkLoggedIn()
 
       this.getDetails()
+      this.getLikedReviews()
     })
   }
 
@@ -108,13 +111,45 @@ class Details extends Component {
   }
 
   getLikedReviews = async() => {
-    
+
+    const token = await AsyncStorage.getItem('@session_token')
+    const userId = await AsyncStorage.getItem('@user_id')
+
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': token
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        userReviews: responseJson.reviews,
+        likedReviews: responseJson.liked_reviews
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+
   }
 
-  likeReview = async(reviewId) => {
+  reviewAction = async(reviewId, method) => {
 
     return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/like", {
-      method: 'post',
+      method: method,
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
@@ -137,6 +172,45 @@ class Details extends Component {
       console.log(error);
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
+  }
+
+  deleteReview(reviewId) {
+
+  }
+
+  renderLikeButton(currentReviewId) {
+    if(this.state.likedReviews.every((item) => item.review.review_id !== currentReviewId)){
+      return(
+        <TouchableOpacity
+          onPress={() => {
+            this.reviewAction(currentReviewId, 'post');
+          }}>
+          <Text>Like</Text>
+        </TouchableOpacity>
+      )
+    } else {
+      return(
+        <TouchableOpacity
+            onPress={() => {
+              this.reviewAction(currentReviewId, 'delete');
+            }}>
+            <Text>UnLike</Text>
+        </TouchableOpacity>
+      )
+    }
+  }
+
+  renderDeleteButton(currentReviewId) {
+    if(this.state.userReviews.every((item) => item.review.review_id == currentReviewId)){
+      return(
+        <TouchableOpacity
+          onPress={() => {
+            this.deleteReview(currentReviewId);
+          }}>
+          <Text>Delete</Text>
+        </TouchableOpacity>
+      )
+    }
   }
 
   render () {
@@ -187,13 +261,8 @@ class Details extends Component {
             renderItem={({item}) => (
               <View>
                 <Text>{item.review_body}</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.likeReview(item.review_id);
-                  }}
-                >
-                  <Text>Like</Text>
-                </TouchableOpacity>
+                {this.renderLikeButton(item.review_id)}
+                {this.renderDeleteButton(item.review_id)}
               </View>
             )}
             keyExtractor={(item,index) => item.review_id.toString()}
