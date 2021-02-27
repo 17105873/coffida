@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Text, View, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
 
-import image from '../resources/img/index_bg.jpg'
+import image from '../../resources/img/index_bg.jpg'
 
 class Index extends Component {
   render () {

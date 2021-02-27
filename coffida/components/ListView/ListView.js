@@ -62,11 +62,6 @@ class ListView extends Component {
     })
   }
 
-  viewDetails(itemId) {
-
-  }
-
-
   render () {
 
     if (this.state.isLoading == true)

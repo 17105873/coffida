@@ -4,9 +4,9 @@ import React, { Component } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 
-import Login from './components/Login'
-import SignUp from './components/SignUp'
-import Index from './components/Index'
+import Login from './components/Auth/Login'
+import SignUp from './components/Auth/SignUp'
+import Index from './components/Auth/Index'
 import HomeIndex from './components/HomeIndex'
 
 const Stack = createStackNavigator()

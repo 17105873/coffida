@@ -1,13 +1,12 @@
 import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
-import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Home from './Home'
-import MapView from './location/MapView'
-import ListView from './ListLocation/Index'
+import MapView from './MapView/MapView'
+import ListView from './ListView/Index'
 import User from './User/User'
 
 const Tab = createBottomTabNavigator()

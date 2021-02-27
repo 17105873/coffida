@@ -9,6 +9,8 @@ class Details extends Component {
     this.state = {
       isLoading: true,
       favLocation: false,
+      locationId: this.props.route.params.locationId,
+      locationName: '',
       details: []
     }
   }
@@ -34,9 +36,7 @@ class Details extends Component {
 
   getDetails = async () => {
 
-    const locationId = this.props.route.params.locationId
-
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationId, {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId, {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
@@ -56,6 +56,7 @@ class Details extends Component {
     .then((responseJson) => {
       this.setState({
         isLoading: false,
+        locationName: responseJson.location_name,
         details: responseJson
       })
     })
@@ -66,8 +67,7 @@ class Details extends Component {
   }
 
   favouriteLocation = async ({favLoc}) => {
-    
-    const locationId = this.props.route.params.locationId
+
     var action
 
     if (favLoc) {
@@ -76,14 +76,14 @@ class Details extends Component {
       action = 'delete'
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationId + "/favourite", {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/favourite", {
       method: action,
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': await AsyncStorage.getItem('@session_token')
       },
       body: {
-        'loc_id': locationId
+        'loc_id': this.state.locationId
       }
     })
     .then((response) => {
@@ -100,6 +100,38 @@ class Details extends Component {
       this.setState({
         favLocation: favLoc ? true : false
       })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
+  getLikedReviews = async() => {
+    
+  }
+
+  likeReview = async(reviewId) => {
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/like", {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then(() => {
+      //Do Something
     })
     .catch((error) => {
       console.log(error);
@@ -139,8 +171,33 @@ class Details extends Component {
             </TouchableOpacity>
           </View>
           <View>
-            <Text>Write Review</Text>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('Review', {
+                  locationId: this.state.locationId,
+                  locationName: this.state.locationName
+                });
+              }}
+            >
+              <Text>Write Review</Text>
+            </TouchableOpacity>
           </View>
+          <FlatList 
+            data={this.state.details.location_reviews}
+            renderItem={({item}) => (
+              <View>
+                <Text>{item.review_body}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.likeReview(item.review_id);
+                  }}
+                >
+                  <Text>Like</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            keyExtractor={(item,index) => item.review_id.toString()}
+          />
         </View>
       )
     }
