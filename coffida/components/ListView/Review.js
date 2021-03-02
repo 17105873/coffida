@@ -21,7 +21,8 @@ class Review extends Component {
       price_rating: 0,
       quality_rating: 0,
       clenliness_rating: 0,
-      review_body: ''
+      review_body: '',
+      photo: null
     }
   }
 
@@ -96,13 +97,41 @@ class Review extends Component {
       if(response.status === 201 || response.status === 200){
         return
       } else if (response.status === 400) {
-        throw "Invalid Email Or Password";
+        throw "Invalid Details";
       } else {
         throw "Something went wrong. Please try again";
       }
     })
     .then(() => {
       navigation.goBack()
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
+  uploadPhoto = async() => {
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId + "/photo", {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      },
+      body: this.state.photo
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return
+      } else if (response.status === 400) {
+        throw "Invalid Upload Type";
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then(() => {
+      //navigation.goBack()
     })
     .catch((error) => {
       console.log(error);
@@ -134,7 +163,13 @@ class Review extends Component {
     return ratingRow;
   }
 
+  setPhoto = data => {
+    this.setState({photo: data});
+  };
+
   render () {
+
+    const navigation = this.props.navigation
 
     return (
       <ScrollView>
@@ -159,6 +194,20 @@ class Review extends Component {
               <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
           </View>
           <View>
+            <TouchableOpacity onPress={() => navigation.navigation.goBack()}>
+              <Text>Upload Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('TakePicture', {
+                  setPhoto: this.setPhoto
+                });
+              }}
+            >
+              <Text>Take Photo</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
             <Text>Review:</Text>
             <TextInput
               placeholder="Review Details..."
@@ -168,7 +217,7 @@ class Review extends Component {
               numberOfLines={4} />
           </View>
           <View>
-            <TouchableOpacity onPress={() => this.props.navigation.navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Text>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -181,7 +230,7 @@ class Review extends Component {
       </ScrollView>
     )
   }
-}
+} 
 
 const styles = StyleSheet.create({
   ratingRow: {

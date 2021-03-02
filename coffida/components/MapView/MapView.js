@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, PermissionsAndroid } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, StyleSheet, TouchableOpacity, ToastAndroid, PermissionsAndroid } from 'react-native'
 import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 async function requestLocationPermission() {
   try {
@@ -9,8 +10,7 @@ async function requestLocationPermission() {
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
         title: 'Location Permission',
-        message:
-          'This app requires access to your location.',
+        message: 'This app requires access to your location.',
         buttonNeutral: 'Ask Me Later',
         buttonNegative: 'Cancel',
         buttonPositive: 'OK',
@@ -28,12 +28,15 @@ async function requestLocationPermission() {
   }
 }
 
-class MapView extends Component {
+class Map extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
+      isLoading: true,
       location: null,
+      latitude: null,
+      longitude: null,
       locationPermission: false
     }
   }
@@ -64,8 +67,9 @@ class MapView extends Component {
     GeoLocation.getCurrentPosition(
       (position) => {
         const location = JSON.stringify(position)
+        const coords = JSON.parse(location)
 
-        this.setState({ location })
+        this.setState({ location, isLoading: false, latitude: coords.coords.latitude, longitude: coords.coords.longitude })
       },
       (error) => {
         ToastAndroid.show(error, ToastAndroid.SHORT);
@@ -79,12 +83,39 @@ class MapView extends Component {
   }
 
   render () {
-    return (
-      <View>
-        <Text>Map View</Text>
-      </View>
-    )
+
+    if (this.state.isLoading) {
+      return (
+        <View>
+          <Text>Map View</Text>
+          <Text>Loading...</Text>
+        </View>
+      )
+    } else {
+      return (
+        <View style={StyleSheet.absoluteFillObject}>
+          <MapView
+            style={StyleSheet.absoluteFillObject}
+            provider={PROVIDER_GOOGLE}
+            region={{
+              latitude: this.state.latitude,
+              longitude: this.state.longitude,
+              latitudeDelta: 0.002,
+              longitudeDelta: 0.002
+            }}
+          />
+        </View>
+      )
+    }
   }
 }
 
-export default MapView
+const styles = StyleSheet.create({
+  map: {
+    position: 'absolute',
+    top: 100,
+    left: 50
+  },
+});
+
+export default Map

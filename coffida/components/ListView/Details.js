@@ -287,9 +287,9 @@ class Details extends Component {
           <TouchableOpacity
             onPress={() => {
               this.props.navigation.navigate('Review', {
-                review_id: currentItem.review_id,
                 locationId: this.state.details.location_id,
                 locationName: this.state.details.location_name,
+                review_id: currentItem.review_id,
                 overall_rating: currentItem.overall_rating,
                 price_rating: currentItem.price_rating,
                 quality_rating: currentItem.quality_rating,
