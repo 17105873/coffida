@@ -48,6 +48,7 @@ class TakePicture extends Component {
             this.camera = ref;
           }}
           style={styles.camera}
+          captureAudio={false}
         />
         <View>
           <TouchableOpacity onPress={() => this.takePicture()}>

@@ -5,6 +5,9 @@ import AsyncStorage from '@react-native-community/async-storage'
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
 
+let asyncToken
+let asyncUserId
+
 class Review extends Component {
   constructor (props) {
     super(props)
@@ -39,8 +42,10 @@ class Review extends Component {
   }
 
   checkLoggedIn = async () => {
-    const token = await AsyncStorage.getItem('@session_token')
-    if (token == null) {
+//    const token = await AsyncStorage.getItem('@session_token')
+    asyncToken = await AsyncStorage.getItem('@session_token')
+    asyncUserId = await AsyncStorage.getItem('@user_id')
+    if (asyncToken == null) {
       this.props.navigation.navigate('Login')
     }
   }
@@ -59,7 +64,7 @@ class Review extends Component {
     }
   }
 
-  submitReview = async (reviewType) => {
+  submitReview = async(reviewType) => {
 
     var endPoint;
     var method;
@@ -89,12 +94,18 @@ class Review extends Component {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'X-Authorization': asyncToken
       },
       body: JSON.stringify(this.state)
     })
     .then((response) => {
-      if(response.status === 201 || response.status === 200){
+      if(response.status === 201){
+        //New Review Created Then Retrieve New Review Id
+        this.getLatestReview()
+        return
+      } else if (response.status === 200) {
+        //If Update Then No Need To Retrieve New id
+        this.uploadPhoto(this.state.reviewId)
         return
       } else if (response.status === 400) {
         throw "Invalid Details";
@@ -103,7 +114,7 @@ class Review extends Component {
       }
     })
     .then(() => {
-      navigation.goBack()
+      //this.uploadPhoto()
     })
     .catch((error) => {
       console.log(error);
@@ -111,13 +122,18 @@ class Review extends Component {
     })
   }
 
-  uploadPhoto = async() => {
+  uploadPhoto = async(reviewId) => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId + "/photo", {
+    if (this.state.photo == null) {
+      this.props.navigation.goBack()
+      return
+    }
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/photo", {
       method: 'post',
       headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'Content-Type': "image/jpeg",
+        'X-Authorization': asyncToken
       },
       body: this.state.photo
     })
@@ -131,12 +147,51 @@ class Review extends Component {
       }
     })
     .then(() => {
-      //navigation.goBack()
+      this.props.navigation.goBack()
     })
     .catch((error) => {
       console.log(error);
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
+  }
+
+  getLatestReview = async() => {
+
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + asyncUserId, {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': asyncToken
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((responseJson) => {
+
+      //Get Id of Review Just Inserted
+      let newReviewId;
+
+      responseJson.reviews.map((userReview) => {
+        if (newReviewId == null || parseInt(userReview.review.review_id) > newReviewId) {
+          newReviewId = userReview.review.review_id
+        }
+      })
+
+      this.uploadPhoto(newReviewId)
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+
   }
 
   UpdateRating(key, rating_type)
