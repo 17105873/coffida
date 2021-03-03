@@ -113,9 +113,6 @@ class Review extends Component {
         throw "Something went wrong. Please try again";
       }
     })
-    .then(() => {
-      //this.uploadPhoto()
-    })
     .catch((error) => {
       console.log(error);
       ToastAndroid.show(error, ToastAndroid.SHORT);

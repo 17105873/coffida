@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
+let asyncToken
+
 class Details extends Component {
   constructor (props) {
     super(props)
@@ -13,7 +15,8 @@ class Details extends Component {
       locationName: '',
       likeButton: [],
       actionButton: [],
-      details: []
+      details: [],
+      images: []
     }
   }
 
@@ -31,8 +34,10 @@ class Details extends Component {
   }
 
   checkLoggedIn = async () => {
-    const token = await AsyncStorage.getItem('@session_token')
-    if (token == null) {
+//    const token = await AsyncStorage.getItem('@session_token')
+    asyncToken = await AsyncStorage.getItem('@session_token')
+    
+    if (asyncToken == null) {
       this.props.navigation.navigate('Login')
     }
   }
@@ -57,6 +62,7 @@ class Details extends Component {
       }
     })
     .then((responseJson) => {
+      this.initialiseImage(responseJson)
       this.setState({
         locationName: responseJson.location_name,
         details: responseJson
@@ -146,58 +152,6 @@ class Details extends Component {
 
   }
 
-  initialiseLikeBtn(responseJson) {
-    let likeBtn = {}
-
-    // Loop through location reviews & liked reviews and assign true/false to corresponding object item
-    this.state.details.location_reviews.map((item) => {        
-      responseJson.liked_reviews.map((likedItem) => {
-        if (item.review_id == likedItem.review.review_id) {
-          likeBtn[item.review_id] = true
-        }
-      })
-
-      if(!likeBtn[item.review_id]) {
-        likeBtn[item.review_id] = false
-      }
-    })
-
-    this.setState({
-      likeButton: likeBtn
-    })
-  }
-
-  initialiseActionBtn(responseJson) {
-    let actionBtn = {}
-
-    // Loop through location reviews & user written reviews and assign true/false to corresponding object item
-    this.state.details.location_reviews.map((item) => {        
-      responseJson.reviews.map((userItem) => {
-        if (item.review_id == userItem.review.review_id) {
-          actionBtn[item.review_id] = true
-        }
-      })
-
-      if(!actionBtn[item.review_id]) {
-        actionBtn[item.review_id] = false
-      }
-    })
-
-    this.setState({
-      actionButton: actionBtn
-    })
-  }
-
-  initialiseFavouriteLoc(responseJson) {
-    responseJson.favourite_locations.map((item) => {
-      if (item.location_id == this.state.locationId) {
-        this.setState({
-          favLocation: true
-        })
-      }
-    })
-  }
-
   reviewAction = async(reviewId, method) => {
 
     return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/like", {
@@ -256,6 +210,105 @@ class Details extends Component {
     })
   }
 
+  initialiseImage = async(responseJson) => {
+
+    let imgs = {}
+
+    responseJson.location_reviews.map(async(item) => {
+
+      return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + item.review_id + "/photo", {
+        method: 'get',
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'X-Authorization': asyncToken
+        }
+      })
+      .then((response) => {
+        if(response.status === 200){
+          return response
+        } else if (response.status === 401) {
+          ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+          this.props.navigation.navigate('Login')
+        } else if (response.status === 404) {
+          //No Image For Review
+          return null
+        } else {
+          throw "Something went wrong. Please try again";
+        }
+      })
+      .then((response) => {
+        if (response !== null) {
+          imgs[item.review_id] = response
+        } else {
+          imgs[item.review_id] = null
+        }
+        return
+      })
+      .catch((error) => {
+        console.log(error);
+        ToastAndroid.show(error, ToastAndroid.SHORT);
+      })
+
+    })
+
+    this.setState({
+      images: imgs
+    })
+    
+  }
+
+  initialiseLikeBtn(responseJson) {
+    let likeBtn = {}
+
+    // Loop through location reviews & liked reviews and assign true/false to corresponding object item
+    this.state.details.location_reviews.map((item) => {        
+      responseJson.liked_reviews.map((likedItem) => {
+        if (item.review_id == likedItem.review.review_id) {
+          likeBtn[item.review_id] = true
+        }
+      })
+
+      if(!likeBtn[item.review_id]) {
+        likeBtn[item.review_id] = false
+      }
+    })
+
+    this.setState({
+      likeButton: likeBtn
+    })
+  }
+
+  initialiseActionBtn(responseJson) {
+    let actionBtn = {}
+
+    // Loop through location reviews & user written reviews and assign true/false to corresponding object item
+    this.state.details.location_reviews.map((item) => {
+      responseJson.reviews.map((userItem) => {
+        if (item.review_id == userItem.review.review_id) {
+          actionBtn[item.review_id] = true
+        }
+      })
+
+      if(!actionBtn[item.review_id]) {
+        actionBtn[item.review_id] = false
+      }
+    })
+
+    this.setState({
+      actionButton: actionBtn
+    })
+  }
+
+  initialiseFavouriteLoc(responseJson) {
+    responseJson.favourite_locations.map((item) => {
+      if (item.location_id == this.state.locationId) {
+        this.setState({
+          favLocation: true
+        })
+      }
+    })
+  }
+
   renderLikeButton(currentReviewId) {
 
     if(!this.state.likeButton[currentReviewId]) {
@@ -310,6 +363,17 @@ class Details extends Component {
     }
   }
 
+  renderImage(currentReviewId) {
+
+    if(this.state.images[currentReviewId] !== null) {
+      return(
+        <View><Text>Image</Text></View>
+      )
+    } else {
+      return
+    }
+  }
+
   render () {
 
     let favLocText
@@ -354,16 +418,23 @@ class Details extends Component {
             </TouchableOpacity>
           </View>
           <FlatList 
+            LisHeaderComponent={
+              <>
+              </>}
             data={this.state.details.location_reviews}
             renderItem={({item}) => (
               <View>
                 <Text>{item.review_body}</Text>
                 {this.renderLikeButton(item.review_id)}
                 {this.renderDeleteButton(item)}
+                {this.renderImage(item.review_id)}
               </View>
             )}
             keyExtractor={(item,index) => item.review_id.toString()}
-          />
+            ListFooterComponent={
+              <>
+              </>
+            }/>
         </View>
       )
     }
