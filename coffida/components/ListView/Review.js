@@ -25,14 +25,13 @@ class Review extends Component {
       quality_rating: 0,
       clenliness_rating: 0,
       review_body: '',
-      photo: null
+      photo: ''
     }
   }
 
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
-
       this.checkUpdate()
     })
   }
@@ -121,7 +120,7 @@ class Review extends Component {
 
   uploadPhoto = async(reviewId) => {
 
-    if (this.state.photo == null) {
+    if (this.state.photo == '') {
       this.props.navigation.goBack()
       return
     }
@@ -217,6 +216,8 @@ class Review extends Component {
 
   setPhoto = data => {
     this.setState({photo: data});
+
+    console.log(data.base64)
   };
 
   render () {
@@ -258,6 +259,9 @@ class Review extends Component {
             >
               <Text>Take Photo</Text>
             </TouchableOpacity>
+          </View>
+          <View>
+          <Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.photo.uri}}/>
           </View>
           <View>
             <Text>Review:</Text>

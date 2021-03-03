@@ -2,6 +2,11 @@ import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import { RNCamera } from 'react-native-camera'
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+ 'Non-serializable values were found in the navigation state',
+]);
 
 class TakePicture extends Component {
   constructor (props) {

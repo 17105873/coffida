@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
 let asyncToken
@@ -24,7 +24,7 @@ class Details extends Component {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
 
-      this.getDetails()
+      this.getDetails(false)
       this.getUserSpecific()
     })
   }
@@ -42,7 +42,7 @@ class Details extends Component {
     }
   }
 
-  getDetails = async () => {
+  getDetails = async (blnUpdate) => {
 
     return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId, {
       method: 'get',
@@ -62,7 +62,10 @@ class Details extends Component {
       }
     })
     .then((responseJson) => {
-      this.initialiseImage(responseJson)
+      if (blnUpdate == false) {
+        this.initialiseImage(responseJson)
+      }
+
       this.setState({
         locationName: responseJson.location_name,
         details: responseJson
@@ -202,7 +205,7 @@ class Details extends Component {
       }
     })
     .then(() => {
-      this.getDetails()
+      this.getDetails(true)
     })
     .catch((error) => {
       console.log(error);
@@ -214,42 +217,46 @@ class Details extends Component {
 
     let imgs = {}
 
-    responseJson.location_reviews.map(async(item) => {
+    try{
+      responseJson.location_reviews.map(async(item) => {
 
-      return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + item.review_id + "/photo", {
-        method: 'get',
-        headers: {
-          'Content-Type': 'image/jpeg',
-          'X-Authorization': asyncToken
-        }
-      })
-      .then((response) => {
-        if(response.status === 200){
-          return response
-        } else if (response.status === 401) {
-          ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
-          this.props.navigation.navigate('Login')
-        } else if (response.status === 404) {
-          //No Image For Review
-          return null
-        } else {
-          throw "Something went wrong. Please try again";
-        }
-      })
-      .then((response) => {
-        if (response !== null) {
-          imgs[item.review_id] = response
-        } else {
-          imgs[item.review_id] = null
-        }
-        return
-      })
-      .catch((error) => {
-        console.log(error);
-        ToastAndroid.show(error, ToastAndroid.SHORT);
-      })
+        return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + item.review_id + "/photo", {
+          method: 'get',
+          headers: {
+            'Content-Type': 'image/jpeg',
+            'X-Authorization': asyncToken
+          }
+        })
+        .then((response) => {
+          if(response.status === 200){
+            return response
+          } else if (response.status === 401) {
+            ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+            this.props.navigation.navigate('Login')
+          } else if (response.status === 404) {
+            //No Image For Review
+            return null
+          } else {
+            throw "Something went wrong. Please try again";
+          }
+        })
+        .then((response) => {
+          if (response !== null) {
+            imgs[item.review_id] = response
+          } else {
+            imgs[item.review_id] = null
+          }
+          return
+        })
+        .catch((error) => {
+          console.log(error);
+          ToastAndroid.show(error, ToastAndroid.SHORT);
+        })
 
-    })
+      })
+    } catch(error) {
+      console.log(error)
+    }
 
     this.setState({
       images: imgs
@@ -366,8 +373,9 @@ class Details extends Component {
   renderImage(currentReviewId) {
 
     if(this.state.images[currentReviewId] !== null) {
+
       return(
-        <View><Text>Image</Text></View>
+        <View><Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/></View>
       )
     } else {
       return
