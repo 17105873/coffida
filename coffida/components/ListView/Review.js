@@ -25,7 +25,7 @@ class Review extends Component {
       quality_rating: 0,
       clenliness_rating: 0,
       review_body: '',
-      photo: ''
+      photo: null
     }
   }
 
@@ -60,6 +60,7 @@ class Review extends Component {
         reviewType: 'Update',
         reviewId: this.props.route.params.review_id
       })
+      this.getImage(this.props.route.params.review_id)
     }
   }
 
@@ -120,7 +121,7 @@ class Review extends Component {
 
   uploadPhoto = async(reviewId) => {
 
-    if (this.state.photo == '') {
+    if (this.state.photo == null) {
       this.props.navigation.goBack()
       return
     }
@@ -190,6 +191,73 @@ class Review extends Component {
 
   }
 
+  getImage = async(reviewId) => {
+
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + reviewId + "/photo", {
+      method: 'get',
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'X-Authorization': asyncToken
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else if (response.status === 404) {
+        //No Image For Review
+        return null
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((response) => {
+      if (response !== null) {
+        this.setState({ photo: response }) 
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+
+  }
+
+  deletePhoto = async() => {
+
+    if (this.state.reviewType == 'Submit')
+    {
+      this.setState({ photo: null })
+      return
+    }
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId + "/photo", {
+      method: 'delete',
+      headers: {
+        'X-Authorization': asyncToken
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return
+      } else if (response.status === 400) {
+        throw "Invalid Upload Type";
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then(() => {
+      this.setState({ photo: null })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+
+  }
+
   UpdateRating(key, rating_type)
   {
     this.setState({ [rating_type]: key });
@@ -214,10 +282,33 @@ class Review extends Component {
     return ratingRow;
   }
 
+  imageControl() {
+
+    var imgSrc
+
+    if (this.state.photo !== null) {
+
+      if (this.state.photo.url !== undefined) {
+        imgSrc = this.state.photo.url
+      } else {
+        imgSrc = this.state.photo.uri
+      }
+
+      return(
+        <View>
+          <View>
+            <Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: imgSrc}}/>
+          </View>
+          <TouchableOpacity onPress={() => this.deletePhoto()}>
+            <Text>Delete Photo</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+  }
+
   setPhoto = data => {
     this.setState({photo: data});
-
-    console.log(data.base64)
   };
 
   render () {
@@ -260,9 +351,7 @@ class Review extends Component {
               <Text>Take Photo</Text>
             </TouchableOpacity>
           </View>
-          <View>
-          <Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.photo.uri}}/>
-          </View>
+          <View>{this.imageControl()}</View>
           <View>
             <Text>Review:</Text>
             <TextInput

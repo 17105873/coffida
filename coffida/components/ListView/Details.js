@@ -372,7 +372,7 @@ class Details extends Component {
 
   renderImage(currentReviewId) {
 
-    if(this.state.images[currentReviewId] !== null) {
+    if(this.state.images[currentReviewId] !== null && this.state.images[currentReviewId] !== undefined) {
 
       return(
         <View><Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/></View>
