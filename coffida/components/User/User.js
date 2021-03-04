@@ -126,7 +126,7 @@ class SignUp extends Component {
     }
 
     if (this.state.password == '' || this.state.password.length < 5) {
-      throw 'Please Enter Password'
+      ToastAndroid.show('Please Enter Password', ToastAndroid.SHORT)
     }
 
     return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {

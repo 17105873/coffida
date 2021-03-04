@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
-import { Text, View, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
+import { Text, View, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native'
 
-import image from '../../resources/img/index_bg.jpg'
+import backgroundImg from '../../resources/img/index_bg.jpg'
+import signUpImg from '../../resources/img/signup.png'
+import loginImg from '../../resources/img/login.png'
 
 class Index extends Component {
   render () {
@@ -9,18 +11,18 @@ class Index extends Component {
 
     return (
       <View style={styles.container}>
-        <ImageBackground source={image} style={styles.image}>
-          <View>
+        <ImageBackground source={backgroundImg} style={styles.image}>
+          <View style={styles.headerView}>
             <Text style={styles.header}>Coffida</Text>
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.button}>Log In</Text>
+          <View style={styles.buttonContainerSignUp}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Image style={styles.navImg} source={signUpImg} />
             </TouchableOpacity>
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-              <Text style={styles.button}>Sign Up</Text>
+          <View style={styles.buttonContainerLogIn}>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Image style={styles.navImg} source={loginImg} />
             </TouchableOpacity>
           </View>
         </ImageBackground>
@@ -39,8 +41,13 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     justifyContent: 'center'
   },
-  buttonContainer: {
-    flex: 0.25
+  buttonContainerLogIn: {
+    alignItems: 'center',
+    flex: 2
+  },
+  buttonContainerSignUp: {
+    alignItems: 'center',
+    flex: 1
   },
   button: {
     textAlign: 'center',
@@ -48,10 +55,19 @@ const styles = StyleSheet.create({
     fontSize: 30,
     backgroundColor: 'white'
   },
+  headerView: {
+    flex: 2,
+    textAlign: 'center',
+    justifyContent: 'center'
+  },
   header: {
     color: 'white',
-    fontSize: 50,
+    fontSize: 100,
+    fontWeight: 'bold',
     textAlign: 'center'
+  },
+  navImg: {
+    justifyContent: 'center'
   }
 })
 

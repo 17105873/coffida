@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
+import { StyleSheet } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -35,7 +36,7 @@ class HomeIndex extends Component {
 
   render () {
     return (
-      <Tab.Navigator initialRouteName='Home' >
+      <Tab.Navigator initialRouteName='Home' style={styles.tabNav}>
         <Tab.Screen name='Map View' component={MapView} />
         <Tab.Screen name='List View' component={ListView} />
         <Tab.Screen name='Home' component={Home} />
@@ -44,5 +45,12 @@ class HomeIndex extends Component {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  tabNav: {
+    backgroundColor: 'black',
+    padding: 10
+  }
+})
 
 export default HomeIndex

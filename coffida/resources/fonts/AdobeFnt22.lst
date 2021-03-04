@@ -1,0 +1,106 @@
+%!Adobe-FontList 1.22
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/luc/Creative Cloud Files/Independent Design Work/Luke/Coffida Folder/Document fonts/AdobeFnt22.lst
+FileLength:2196
+FileModTime:636509695
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CourierNewPS-BoldMT
+FamilyName:Courier New
+StyleName:Bold
+MenuName:Courier New
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Courier New Bold
+WritingScript:Roman
+OutlineFileName:/Users/luc/Creative Cloud Files/Independent Design Work/Luke/Coffida Folder/Document fonts/Courier New Bold.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:691796
+FileModTime:636509695
+NameArray:0,Mac,4,Courier New Bold
+NameArray:0,Win,1,Courier New
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CourierNewPSMT
+FamilyName:Courier New
+StyleName:Regular
+MenuName:Courier New
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Courier New
+WritingScript:Roman
+OutlineFileName:/Users/luc/Creative Cloud Files/Independent Design Work/Luke/Coffida Folder/Document fonts/Courier New.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:684624
+FileModTime:636509695
+NameArray:0,Mac,4,Courier New
+NameArray:0,Win,1,Courier New
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Courier
+FamilyName:Courier
+StyleName:Regular
+MenuName:Courier
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Courier
+WritingScript:Roman
+OutlineFileName:/Users/luc/Creative Cloud Files/Independent Design Work/Luke/Coffida Folder/Document fonts/Courier.dfont
+DataFormat:sfntResource
+ResourceID:24011
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:1649525
+FileModTime:636509695
+NameArray:0,Mac,4,Courier
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MinionPro-Regular
+FamilyName:Minion Pro
+StyleName:Regular
+MenuName:Minion Pro
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Minion Pro
+WritingScript:Roman
+OutlineFileName:/Users/luc/Creative Cloud Files/Independent Design Work/Luke/Coffida Folder/Document fonts/MinionPro-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:218640
+FileModTime:634075226
+DesignSize:110
+NameArray:0,Mac,4,Minion Pro
+NameArray:0,Win,1,Minion Pro
+%EndFont
+
