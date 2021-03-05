@@ -76,7 +76,7 @@ class Login extends Component{
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password:</Text>
-          <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input}  onChangeText={(password) => this.setState({password})} value={this.state.password} />
+          <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input}  onChangeText={(password) => this.setState({password})} value={this.state.password} secureTextEntry />
         </View>
         <View style={styles.btnContainer}>
           <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>

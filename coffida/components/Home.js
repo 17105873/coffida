@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, ImageBackground, ScrollView, ToastAndroid, PermissionsAndroid } from 'react-native'
+import { Text, View, StyleSheet, ImageBackground, ScrollView, ToastAndroid, PermissionsAndroid, FlatList, TouchableOpacity } from 'react-native'
 import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -39,6 +39,9 @@ class Home extends Component {
       isLoading: true,
       forename: '',
       surname: '',
+      lat: null,
+      lng: null,
+      userData: null,
       locationPermission: false
     }
   }
@@ -89,6 +92,7 @@ class Home extends Component {
     .then((responseJson) => {
       this.setState({
         isLoading: false,
+        userData: this.sortList(responseJson.favourite_locations, "avg_overall_rating"),
         forename: responseJson.first_name,
         surname: responseJson.last_name
       })
@@ -98,6 +102,23 @@ class Home extends Component {
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
 
+  }
+
+  sortList(responseJson, sortBy) {
+    var data = responseJson
+    data = data.sort(this.sortBy(sortBy))
+    return data
+  }
+
+  sortBy(prop){
+    return function(a,b){
+       if (a[prop] > b[prop]){
+          return 1;
+       } else if(a[prop] < b[prop]){
+          return -1;
+       }
+       return 0;
+    }
   }
 
   getCurrentLocation(){
@@ -113,7 +134,10 @@ class Home extends Component {
         await AsyncStorage.setItem('@latitude', coords.coords.latitude.toString());
         await AsyncStorage.setItem('@longitude', coords.coords.longitude.toString());
 
-        console.log(coords.coords.longitude.toString())
+        this.setState({
+          lat: coords.coords.latitude.toString(),
+          lng: coords.coords.longitude.toString()
+        })
       },
       (error) => {
         ToastAndroid.show(error, ToastAndroid.SHORT);
@@ -126,21 +150,88 @@ class Home extends Component {
     )
   }
 
-  render () {
+  //function to retrieve distance between 2 points (as the crow flies)
+  distance(lat, lon) {
 
-    return (
-      <ScrollView style={styles.scrollContainer}>
-        <ImageBackground source={backgroundImg} style={styles.image}>
-          <View style={styles.headerView}>
-            <Text style={styles.header}>Welcome</Text>
-            <Text style={styles.header}>{this.state.forename + ' ' + this.state.surname}</Text>
-          </View>
-        </ImageBackground>
-        <View style={styles.recent}>
-          <Text>Recent Reviews</Text>
+    if (this.state.lat == null){
+      return 0
+    }
+
+    var p = 0.017453292519943295;    // Math.PI / 180
+    var c = Math.cos;
+    var a = 0.5 - c((lat - this.state.lat) * p)/2 + 
+            c(this.state.lat * p) * c(lat * p) * 
+            (1 - c((lon - this.state.lng) * p))/2;
+  
+    return (12742 * Math.asin(Math.sqrt(a))).toFixed(2) // 2 * R; R = 6371 Radius of earth in km
+  }
+
+  showFavourites() {
+
+    if (this.state.userData !== null && this.state.userData.length > 0) {
+      return (
+        <FlatList 
+          data={this.state.userData}
+          renderItem={({item}) => (
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('Details', {
+                    locationId: item.location_id
+                  });
+                }}
+              >
+                <View style={styles.itemContainer}>
+                  <Text style={styles.locationName}>{item.location_name}</Text>
+                  <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
+          keyExtractor={(item,index) => item.location_id.toString()}
+        />
+      )
+    } else {
+      return (
+        <View>
+          <Text style={styles.noFavLocations}>You currently don't have any favourite locations</Text>
         </View>
-      </ScrollView>
-    )
+      )
+    }
+  }
+
+
+  render () {
+    if (this.state.isLoading == true)
+    {
+      return (
+        <View style={styles.scrollContainer}>
+          <ImageBackground source={backgroundImg} style={styles.image}>
+            <View style={styles.headerView}>
+              <Text style={styles.header}>Welcome</Text>
+            </View>
+          </ImageBackground>
+          <View style={styles.favHeader}>
+            <Text style={styles.favLocations}>Your Favourite Locations</Text>
+          </View>
+        </View>
+      )
+    } else {
+      return (
+        <View style={styles.scrollContainer}>
+          <ImageBackground source={backgroundImg} style={styles.image}>
+            <View style={styles.headerView}>
+              <Text style={styles.header}>Welcome</Text>
+              <Text style={styles.header}>{this.state.forename + ' ' + this.state.surname}</Text>
+            </View>
+          </ImageBackground>
+          <View style={styles.favHeader}>
+            <Text style={styles.favLocations}>Your Favourite Locations</Text>
+            {this.showFavourites()}
+          </View>
+        </View>
+      )
+    }
   }
 }
 
@@ -154,25 +245,7 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
     justifyContent: 'center',
-    height: 300
-  },
-  inputContainer: {
-    flex: 1,
-    textAlign: 'center',
-    justifyContent: 'center'
-  },
-  label: {
-    color: 'red',
-    fontWeight: 'bold',
-    fontSize: 35,
-    marginHorizontal: 10
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: 'red',
-    fontSize: 30,
-    marginHorizontal: 10,
-    color: 'red'
+    height: 250
   },
   headerView: {
     backgroundColor:'rgba(0,0,0,0.75)',
@@ -187,8 +260,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 1
   },
-  recent: {
-    flex: 1
+  favHeader: {
+    flex: 1.5,
+    padding: 10
+  },
+  favLocations: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    color: 'red'
+  },
+  noFavLocations: {
+    fontSize: 20,
+    color: 'white'
+  },
+  itemContainer: {
+    padding: 10,
+    borderColor: 'red',
+    borderBottomWidth: 2,
+    flexDirection: 'row'
+  },
+  locationName: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: 'bold',
+    flex: 3
+  },
+  locationDistance: {
+    color: 'red',
+    flex: 1,
+    paddingTop: 10
   }
 })
 

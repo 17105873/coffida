@@ -4,6 +4,9 @@ import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
+import iconMarker from '../../resources/img/marker_sm.png'
+import iconMarkerLocation from '../../resources/img/marker_sm_blue.png'
+
 class Map extends Component {
   constructor (props) {
     super(props)
@@ -11,7 +14,8 @@ class Map extends Component {
     this.state = {
       isLoading: true,
       latitude: null,
-      longitude: null
+      longitude: null,
+      mapData: []
     }
   }
 
@@ -19,6 +23,7 @@ class Map extends Component {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
       this.setCurrentLocation()
+      this.getData()
     })
   }
 
@@ -35,9 +40,39 @@ class Map extends Component {
 
   setCurrentLocation = async() => {
     this.setState({
-      latitude: await AsyncStorage.getItem('@latitude'),
-      longitude: await AsyncStorage.getItem('@longitude'),
-      isLoading: false
+      latitude: parseFloat(await AsyncStorage.getItem('@latitude')),
+      longitude: parseFloat(await AsyncStorage.getItem('@longitude'))
+    })
+  }
+
+  getData = async () => {
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/find", {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        this.props.navigation.navigate('Login')
+      } else {
+        throw "Something went wrong. Please try again";
+      }
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        mapData: responseJson
+      })
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
     })
   }
 
@@ -45,7 +80,7 @@ class Map extends Component {
 
     if (this.state.isLoading) {
       return (
-        <View>
+        <View style={styles.container}>
           <Text>Map View</Text>
           <Text>Loading...</Text>
         </View>
@@ -63,10 +98,25 @@ class Map extends Component {
                 latitudeDelta: 0.002,
                 longitudeDelta: 0.002
               }}
-            />
-          </View>
-          <View style={styles.info}>
-            <Text>Details</Text>
+            >
+              {this.state.mapData.map(marker => (
+                <MapView.Marker 
+                  icon={iconMarker}
+                  key={marker.location_id}
+                  coordinate={{latitude: marker.latitude,
+                  longitude: marker.longitude}}
+                  title={marker.location_name}
+                  description={marker.location_town}
+                />
+              ))}
+              <Marker
+                icon={iconMarkerLocation}
+                coordinate={{latitude: this.state.latitude,
+                longitude: this.state.longitude}}
+                title={"Location"}
+                description={"Current Location"}
+              />
+            </MapView>
           </View>
         </View>
       )
@@ -76,7 +126,8 @@ class Map extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#FFA5AD'
   },
   info: {
     flex: 0.3

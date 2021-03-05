@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import { CommonActions } from '@react-navigation/native'
 
-class SignUp extends Component {
+class UserDetails extends Component {
   constructor (props) {
     super(props)
 
@@ -157,38 +157,89 @@ class SignUp extends Component {
 
   render () {
     return (
-      <View>
-        <ScrollView>
-          <View>
-            <Text>Forename:</Text>
-            <TextInput placeholder='Enter Forename' onChangeText={(first_name) => this.setState({ first_name })} value={this.state.first_name} />
-          </View>
-          <View>
-            <Text>Surname:</Text>
-            <TextInput placeholder='Enter Surname' onChangeText={(last_name) => this.setState({ last_name })} value={this.state.last_name} />
-          </View>
-          <View>
-            <Text>Email Address:</Text>
-            <TextInput placeholder='Enter Email Address' onChangeText={(email) => this.setState({ email })} value={this.state.email} />
-          </View>
-          <View>
-            <Text>Password:</Text>
-            <TextInput placeholder='Enter Password' onChangeText={(password) => this.setState({ password })} value={this.state.password} />
-          </View>
-          <View>
-            <TouchableOpacity onPress={() => this.updateDetails()}>
-              <Text>Update Details</Text>
-            </TouchableOpacity>
-          </View>
-          <View>
-            <TouchableOpacity onPress={() => this.logOut()}>
-              <Text>Log Out</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.headerView}>
+          <Text style={styles.header}>Update Details</Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Forename:</Text>
+          <TextInput placeholder='Enter Forename' placeholderTextColor='red' style={styles.input} onChangeText={(first_name) => this.setState({ first_name })} value={this.state.first_name} />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Surname:</Text>
+          <TextInput placeholder='Enter Surname' placeholderTextColor='red' style={styles.input} onChangeText={(last_name) => this.setState({ last_name })} value={this.state.last_name} />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Email Address:</Text>
+          <TextInput placeholder='Enter Email Address' placeholderTextColor='red' style={styles.input} onChangeText={(email) => this.setState({ email })} value={this.state.email} />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password:</Text>
+          <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input} onChangeText={(password) => this.setState({ password })} value={this.state.password} secureTextEntry />
+        </View>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity style={styles.submitBtn} onPress={() => this.updateDetails()}>
+            <Text style={styles.submitBtnTxt}>Update Details</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.submitBtn} onPress={() => this.logOut()}>
+            <Text style={styles.submitBtnTxt}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     )
   }
 }
 
-export default SignUp
+const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingVertical: 20,
+    backgroundColor: '#FFA5AD'
+  },
+  inputContainer: {
+    flex: 1,
+    textAlign: 'center',
+    justifyContent: 'center'
+  },
+  label: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 35,
+    marginHorizontal: 10
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: 'red',
+    fontSize: 30,
+    marginHorizontal: 10,
+    color: 'red'
+  },
+  headerView: {
+    textAlign: 'center',
+    justifyContent: 'center'
+  },
+  header: {
+    color: 'red',
+    fontSize: 50,
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  btnContainer: {
+    flexDirection: 'row',
+    textAlign: 'center',
+    justifyContent: 'center',
+    marginTop: 20
+  },
+  submitBtn: {
+    padding: 10,
+    borderWidth: 2,
+    borderColor: 'red',
+    margin: 10
+  },
+  submitBtnTxt: {
+    fontSize: 25,
+    color: 'red',
+    fontWeight: 'bold'
+  }
+})
+
+export default UserDetails
