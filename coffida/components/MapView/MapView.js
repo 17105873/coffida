@@ -4,47 +4,21 @@ import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
-async function requestLocationPermission() {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Location Permission',
-        message: 'This app requires access to your location.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      },
-    );
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('You can access location');
-      return true;
-    } else {
-      console.log('Location permission denied');
-      return false;
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-}
-
 class Map extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
       isLoading: true,
-      location: null,
       latitude: null,
-      longitude: null,
-      locationPermission: false
+      longitude: null
     }
   }
 
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
-      this.getCurrentLocation()
+      this.setCurrentLocation()
     })
   }
 
@@ -59,27 +33,12 @@ class Map extends Component {
     }
   }
 
-  getCurrentLocation = () => {
-
-    if(!this.state.locationPermission)
-        this.state.locationPermission = requestLocationPermission()
-
-    GeoLocation.getCurrentPosition(
-      (position) => {
-        const location = JSON.stringify(position)
-        const coords = JSON.parse(location)
-
-        this.setState({ location, isLoading: false, latitude: coords.coords.latitude, longitude: coords.coords.longitude })
-      },
-      (error) => {
-        ToastAndroid.show(error, ToastAndroid.SHORT);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 1000
-      }
-    )
+  setCurrentLocation = async() => {
+    this.setState({
+      latitude: await AsyncStorage.getItem('@latitude'),
+      longitude: await AsyncStorage.getItem('@longitude'),
+      isLoading: false
+    })
   }
 
   render () {
@@ -93,17 +52,22 @@ class Map extends Component {
       )
     } else {
       return (
-        <View style={StyleSheet.absoluteFillObject}>
-          <MapView
-            style={StyleSheet.absoluteFillObject}
-            provider={PROVIDER_GOOGLE}
-            region={{
-              latitude: this.state.latitude,
-              longitude: this.state.longitude,
-              latitudeDelta: 0.002,
-              longitudeDelta: 0.002
-            }}
-          />
+        <View style={styles.container}>
+          <View style={styles.container}>
+            <MapView
+              style={StyleSheet.absoluteFillObject}
+              provider={PROVIDER_GOOGLE}
+              region={{
+                latitude: this.state.latitude,
+                longitude: this.state.longitude,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002
+              }}
+            />
+          </View>
+          <View style={styles.info}>
+            <Text>Details</Text>
+          </View>
         </View>
       )
     }
@@ -111,6 +75,12 @@ class Map extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  info: {
+    flex: 0.3
+  },
   map: {
     position: 'absolute',
     top: 100,

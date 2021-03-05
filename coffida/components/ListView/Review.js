@@ -41,7 +41,6 @@ class Review extends Component {
   }
 
   checkLoggedIn = async () => {
-//    const token = await AsyncStorage.getItem('@session_token')
     asyncToken = await AsyncStorage.getItem('@session_token')
     asyncUserId = await AsyncStorage.getItem('@user_id')
     if (asyncToken == null) {
@@ -50,6 +49,8 @@ class Review extends Component {
   }
 
   checkUpdate() {
+
+    //Instead Of Making Another Database Call Values Are Passed Through On Route
     if(this.props.route.params.review_id !== undefined) {
       this.setState({
         overall_rating: this.props.route.params.overall_rating,
@@ -81,13 +82,30 @@ class Review extends Component {
 
     //Validation TO DO
     if (this.state.price_rating == 0){
-      ToastAndroid.show("Please Enter Email Address", ToastAndroid.SHORT);
+      ToastAndroid.show("Please Select Price Rating", ToastAndroid.SHORT);
+      return
+    }
+
+    if (this.state.quality_rating == 0){
+      ToastAndroid.show("Please Select Quality Rating", ToastAndroid.SHORT);
+      return
+    }
+
+    if (this.state.clenliness_rating == 0){
+      ToastAndroid.show("Please Select Cleanliness Rating", ToastAndroid.SHORT);
       return
     }
 
     if (this.state.review_body == ''){
       ToastAndroid.show("Please Enter Review", ToastAndroid.SHORT);
       return
+    } else {
+      const regEx = /(cake|tea|pastr)/gi
+
+      if(regEx.test(this.state.review_body)){
+        ToastAndroid.show("Review Cannot Mention Cakes, Tea or Pastries", ToastAndroid.SHORT);
+        return
+      }
     }
 
     return fetch(endPoint, {
@@ -338,9 +356,6 @@ class Review extends Component {
               <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
           </View>
           <View>
-            <TouchableOpacity onPress={() => navigation.navigation.goBack()}>
-              <Text>Upload Photo</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 this.props.navigation.navigate('TakePicture', {

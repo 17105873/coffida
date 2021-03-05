@@ -1,10 +1,35 @@
 import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, ImageBackground, ScrollView } from 'react-native'
+import { Text, View, StyleSheet, ImageBackground, ScrollView, ToastAndroid, PermissionsAndroid } from 'react-native'
+import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import backgroundImg from '../resources/img/home_bg2.png'
+
+async function requestLocationPermission() {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Location Permission',
+        message: 'This app requires access to your location.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('You can access location');
+      return true;
+    } else {
+      console.log('Location permission denied');
+      return false;
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
 
 class Home extends Component {
   constructor (props) {
@@ -13,7 +38,8 @@ class Home extends Component {
     this.state = {
       isLoading: true,
       forename: '',
-      surname: ''
+      surname: '',
+      locationPermission: false
     }
   }
 
@@ -22,6 +48,8 @@ class Home extends Component {
       this.checkLoggedIn()
 
       this.getUserDetails()
+
+      this.getCurrentLocation()
     })
   }
 
@@ -72,6 +100,32 @@ class Home extends Component {
 
   }
 
+  getCurrentLocation(){
+
+    if(!this.state.locationPermission)
+        this.state.locationPermission = requestLocationPermission()
+
+    GeoLocation.getCurrentPosition(
+      async(position) => {
+        const location = JSON.stringify(position)
+        const coords = JSON.parse(location)
+
+        await AsyncStorage.setItem('@latitude', coords.coords.latitude.toString());
+        await AsyncStorage.setItem('@longitude', coords.coords.longitude.toString());
+
+        console.log(coords.coords.longitude.toString())
+      },
+      (error) => {
+        ToastAndroid.show(error, ToastAndroid.SHORT);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000
+      }
+    )
+  }
+
   render () {
 
     return (
@@ -89,7 +143,6 @@ class Home extends Component {
     )
   }
 }
-
 
 const styles = StyleSheet.create({
   scrollContainer: {

@@ -36,7 +36,16 @@ class HomeIndex extends Component {
 
   render () {
     return (
-      <Tab.Navigator initialRouteName='Home' style={styles.tabNav}>
+      <Tab.Navigator initialRouteName='Home'
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName
+
+            
+
+          }
+        })}
+      >
         <Tab.Screen name='Map View' component={MapView} />
         <Tab.Screen name='List View' component={ListView} />
         <Tab.Screen name='Home' component={Home} />
