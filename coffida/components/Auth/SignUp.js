@@ -140,13 +140,13 @@ const styles = StyleSheet.create({
   submitBtn: {
     padding: 10,
     borderWidth: 2,
-    borderColor: 'red',
+    borderColor: 'black',
+    backgroundColor: 'red',
     margin: 10
   },
   submitBtnTxt: {
     fontSize: 25,
-    color: 'red',
-    fontWeight: 'bold'
+    color: 'white'
   }
 })
 

@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+
+const starBlank = '../../resources/img/star_rating_blank.png'
+const starActive = '../../resources/img/star_rating_active.png'
 
 let asyncToken
 
@@ -34,7 +37,6 @@ class Details extends Component {
   }
 
   checkLoggedIn = async () => {
-//    const token = await AsyncStorage.getItem('@session_token')
     asyncToken = await AsyncStorage.getItem('@session_token')
     
     if (asyncToken == null) {
@@ -316,24 +318,35 @@ class Details extends Component {
     })
   }
 
+  renderButtons(item) {
+    return(
+      <View style={styles.actionBtnContainer}>
+        {this.renderLikeButton(item.review_id)}
+        {this.renderDeleteButton(item)}
+      </View>
+    )
+  }
+
   renderLikeButton(currentReviewId) {
 
     if(!this.state.likeButton[currentReviewId]) {
       return(
         <TouchableOpacity
+          style={styles.actionBtn}
           onPress={() => {
             this.reviewAction(currentReviewId, 'post');
           }}>
-          <Text>Like</Text>
+          <Text style={styles.actionBtnTxt}>Like</Text>
         </TouchableOpacity>
       )
     } else {
       return(
         <TouchableOpacity
-            onPress={() => {
-              this.reviewAction(currentReviewId, 'delete');
-            }}>
-            <Text>UnLike</Text>
+          style={styles.actionBtn}
+          onPress={() => {
+            this.reviewAction(currentReviewId, 'delete');
+          }}>
+          <Text style={styles.actionBtnTxt}>UnLike</Text>
         </TouchableOpacity>
       )
     }
@@ -343,8 +356,9 @@ class Details extends Component {
 
     if(this.state.actionButton[currentItem.review_id]){
       return(
-        <View>
+        <>
           <TouchableOpacity
+            style={styles.actionBtn}
             onPress={() => {
               this.props.navigation.navigate('Review', {
                 locationId: this.state.details.location_id,
@@ -357,15 +371,16 @@ class Details extends Component {
                 review_body: currentItem.review_body
               });
             }}>
-            <Text>Edit</Text>
+            <Text style={styles.actionBtnTxt}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            style={styles.actionBtn}
             onPress={() => {
               this.deleteReview(currentItem.review_id);
             }}>
-            <Text>Delete</Text>
+            <Text style={styles.actionBtnTxt}>Delete</Text>
           </TouchableOpacity>
-        </View>
+        </>
       )
     }
   }
@@ -382,71 +397,241 @@ class Details extends Component {
     }
   }
 
+  renderRating() {
+    let ratingRow = [];
+ 
+    for(var i = 1; i <= 5; i++ )
+    {
+      ratingRow.push(
+        <Image 
+          key = {i}
+          style = { styles.StarImage }
+          source = { ( i <= this.state.details.avg_overall_rating ) ? require(starActive) : require(starBlank) } />
+      );
+    }
+
+    return ratingRow;
+  }
+
   render () {
 
     let favLocText
     let favLoc
 
     if(this.state.favLocation == true) {
-      favLocText = 'Unfavourite Location'
+      favLocText = 'Unfavourite'
       favLoc = false;
     } else {
-      favLocText = 'Favourite Location'
+      favLocText = 'Favourite'
       favLoc = true;
     }
 
     if(this.state.isLoading == true) {
       return (
-        <View>
-          <Text>Details</Text>
+        <View style={styles.loadingScrollContainer}>
+          <View style={styles.loadingHeaderView}>
+            <Text style={styles.loadingHeader}>Loading...</Text>
+          </View>
         </View>
       )
     } else {
+
+      const imagePath = { uri: this.state.details.photo_path };
+
       return (
-        <View>
-          <Text>Details</Text>
-          <View>
-            <Text>{this.state.details.location_name}</Text>
-          </View>
-          <View>
-            <TouchableOpacity onPress={() => this.favouriteLocation({favLoc})}>
-              <Text>{favLocText}</Text>
-            </TouchableOpacity>
-          </View>
-          <View>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('Review', {
-                  locationId: this.state.locationId,
-                  locationName: this.state.locationName
-                });
-              }}
-            >
-              <Text>Write Review</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList 
-            LisHeaderComponent={
-              <>
-              </>}
-            data={this.state.details.location_reviews}
-            renderItem={({item}) => (
-              <View>
-                <Text>{item.review_body}</Text>
-                {this.renderLikeButton(item.review_id)}
-                {this.renderDeleteButton(item)}
-                {this.renderImage(item.review_id)}
-              </View>
-            )}
-            keyExtractor={(item,index) => item.review_id.toString()}
-            ListFooterComponent={
-              <>
-              </>
-            }/>
+        <View style={styles.scrollContainer}>
+          <ImageBackground source={imagePath} style={styles.image}>
+            <View style={styles.headerView}>
+              <Text style={styles.header}>{this.state.details.location_name}</Text>
+              <Text style={styles.headerLocation}>{this.state.details.location_town}</Text>
+            </View>
+            <View style={styles.ratingRow}>
+              {this.renderRating()}
+            </View>
+          </ImageBackground>
+          <View style={styles.body}>
+            <View style={styles.btnContainer}>
+              <TouchableOpacity style={styles.submitBtn} onPress={() => this.favouriteLocation({favLoc})}>
+                <Text style={styles.submitBtnTxt}>{favLocText}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.submitBtn}
+                onPress={() => {
+                  this.props.navigation.navigate('Review', {
+                    locationId: this.state.locationId,
+                    locationName: this.state.locationName
+                  });
+                }}
+              >
+                <Text style={styles.submitBtnTxt}>Review</Text>
+              </TouchableOpacity>
+            </View>
+            <View>
+              <Text style={styles.reviewRating}>Reviews &amp; Ratings</Text>
+            </View>
+            <FlatList 
+              LisHeaderComponent={
+                <>
+                </>}
+              data={this.state.details.location_reviews}
+              renderItem={({item}) => (
+                <View style={{borderBottomWidth: 1, borderColor: 'red'}}>
+                  <Text style={styles.reviewBody}>{item.review_body}</Text>
+                  {this.renderButtons(item)}
+                  {this.renderImage(item.review_id)}
+                </View>
+              )}
+              keyExtractor={(item,index) => item.review_id.toString()}
+              ListFooterComponent={
+                <>
+                </>
+              }/>
+            </View>
         </View>
       )
     }
   }
 }
+
+const styles = StyleSheet.create({
+  loadingScrollContainer: {
+    backgroundColor: '#FFA5AD',
+    flexDirection: 'column',
+    flex: 1
+  },
+  loadingHeaderView: {
+    backgroundColor:'rgba(0,0,0,0.75)',
+    textAlign: 'center',
+    justifyContent: 'center',
+    flex: 1
+  },
+  loadingHeader: {
+    color: 'white',
+    fontSize: 50,
+    textAlign: 'center',
+    opacity: 1,
+    fontFamily: 'Courier New Bold'
+  },
+  scrollContainer: {
+    backgroundColor: '#FFA5AD',
+    flexDirection: 'column',
+    flex: 1
+  },
+  image: {
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    height: 225
+  },
+  headerView: {
+    backgroundColor:'rgba(255, 165, 173,0.75)',
+    textAlign: 'center'
+  },
+  header: {
+    color: 'white',
+    fontSize: 70,
+    textAlign: 'center',
+    opacity: 1,
+    fontWeight: 'bold'
+  },
+  headerLocation: {
+    color: 'black',
+    fontFamily: 'Courier New Bold',
+    fontSize: 50,
+    opacity: 1,
+    textAlign: 'center'
+  },
+  favHeader: {
+    flex: 1.5,
+    padding: 10
+  },
+  body: {
+    flex: 3
+  }, 
+  favLocations: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    color: 'red'
+  },
+  noFavLocations: {
+    fontSize: 20,
+    color: 'white'
+  },
+  itemContainer: {
+    padding: 10,
+    borderColor: 'red',
+    borderBottomWidth: 2,
+    flexDirection: 'row'
+  },
+  locationName: {
+    fontSize: 20,
+    color: 'red',
+    fontFamily: 'Courier New',
+    fontWeight: 'bold',
+    flex: 3
+  },
+  locationDistance: {
+    color: 'red',
+    flex: 1,
+    paddingTop: 10,
+    fontFamily: 'Courier New',
+    fontWeight: 'bold'
+  },
+  ratingRow: {
+    backgroundColor:'rgba(255, 165, 173,0.75)',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  StarImage: {
+    width: 35,
+    height: 35
+  },
+  btnContainer: {
+    flexDirection: 'row',
+    textAlign: 'center',
+    justifyContent: 'center'
+  },
+  submitBtn: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
+    margin: 10
+  },
+  submitBtnTxt: {
+    fontSize: 20,
+    color: 'white',
+    fontFamily: 'MinionPro-Regular'
+  },
+  actionBtnContainer: {
+    flexDirection: 'row',
+    textAlign: 'left',
+    justifyContent: 'flex-start'
+  },
+  actionBtn: {
+    padding: 5,
+    margin: 5
+  },
+  actionBtnTxt: {
+    fontSize: 15,
+    color: 'red',
+    fontFamily: 'MinionPro-Regular',
+    fontWeight: 'bold'
+  },
+  reviewRating: {
+    color: 'red',
+    fontSize: 20,
+    fontFamily: 'MinionPro-Regular',
+    fontWeight: 'bold',
+    paddingHorizontal: 10,
+    marginBottom: 15
+  },
+  reviewBody: {
+    fontFamily: 'CourierNewPSMT',
+    fontWeight: 'bold',
+    color: 'red',
+    paddingHorizontal: 10,
+    paddingVertical: 5
+  }
+})
 
 export default Details
