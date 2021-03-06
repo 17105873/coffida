@@ -64,7 +64,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 100,
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontFamily: 'brandon-grotesque'
   },
   navImg: {
     justifyContent: 'center'

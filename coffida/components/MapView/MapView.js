@@ -95,8 +95,8 @@ class Map extends Component {
               region={{
                 latitude: this.state.latitude,
                 longitude: this.state.longitude,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002
+                latitudeDelta: 0.012,
+                longitudeDelta: 0.012
               }}
             >
               {this.state.mapData.map(marker => (

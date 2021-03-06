@@ -62,7 +62,7 @@ class ListView extends Component {
       //Sorting Data By Average Highest Overall Review
       this.setState({
         isLoading: false,
-        listData: this.sortList(responseJson, "avg_overall_rating")
+        listData: this.sortList(responseJson, this.state.sortBy)
       })
     })
     .catch((error) => {
@@ -114,23 +114,26 @@ class ListView extends Component {
     {
       return (
         <View style={styles.scrollContainer}>
-          <Text style={styles.header}>List View</Text>
+          <Text style={styles.header}>Locations</Text>
         </View>
       )
     } else {
       return (
         <View style={styles.scrollContainer}>
           <View>
-            <Text style={styles.header}>List View</Text>
-            <Picker
-              selectedValue={this.state.sortBy}
-              style={{ height: 50, width: 150 }}
-              onValueChange={(itemValue) => this.activeSort(itemValue)}
-            >
-              <Picker.Item label="Rating" value="avg_overall_rating" />
-              <Picker.Item label="Price" value="avg_price_rating" />
-              <Picker.Item label="Distance" value="distance" />
-            </Picker>
+            <Text style={styles.header}>Locations</Text>
+            <View style={styles.sortContainer}>
+              <Text style={styles.sortLabel}>Sort By:</Text>
+              <Picker
+                selectedValue={this.state.sortBy}
+                style={{ height: 50, width: 150, color: 'white', fontWeight: 'bold' }}
+                onValueChange={(itemValue) => this.activeSort(itemValue)}
+              >
+                <Picker.Item label="Rating" value="avg_overall_rating" />
+                <Picker.Item label="Price" value="avg_price_rating" />
+                <Picker.Item label="Distance" value="distance" />
+              </Picker>
+            </View>
             <FlatList 
               data={this.state.listData}
               renderItem={({item}) => (
@@ -173,26 +176,22 @@ const styles = StyleSheet.create({
   locationName: {
     fontSize: 20,
     color: 'red',
+    fontFamily: 'Courier New',
     fontWeight: 'bold',
     flex: 3
   },
   locationDistance: {
     color: 'red',
     flex: 1,
-    paddingTop: 10
+    paddingTop: 10,
+    fontFamily: 'Courier New',
+    fontWeight: 'bold'
   },
   label: {
     color: 'red',
     fontWeight: 'bold',
     fontSize: 35,
     marginHorizontal: 10
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: 'red',
-    fontSize: 30,
-    marginHorizontal: 10,
-    color: 'red'
   },
   headerView: {
     backgroundColor:'rgba(0,0,0,0.75)',
@@ -208,6 +207,16 @@ const styles = StyleSheet.create({
   },
   recent: {
     flex: 1
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start'
+  },
+  sortLabel: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
+    padding: 10
   }
 })
 

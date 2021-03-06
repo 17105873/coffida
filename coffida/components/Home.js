@@ -281,14 +281,17 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 20,
-    color: 'white',
+    color: 'red',
+    fontFamily: 'Courier New',
     fontWeight: 'bold',
     flex: 3
   },
   locationDistance: {
     color: 'red',
     flex: 1,
-    paddingTop: 10
+    paddingTop: 10,
+    fontFamily: 'Courier New',
+    fontWeight: 'bold'
   }
 })
 
