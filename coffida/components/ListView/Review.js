@@ -25,7 +25,8 @@ class Review extends Component {
       quality_rating: 0,
       clenliness_rating: 0,
       review_body: '',
-      photo: null
+      photo: null,
+      newPhoto: false
     }
   }
 
@@ -142,7 +143,7 @@ class Review extends Component {
 
   uploadPhoto = async(reviewId) => {
 
-    if (this.state.photo == null) {
+    if (this.state.newPhoto == false) {
       this.props.navigation.goBack()
       return
     }
@@ -329,7 +330,7 @@ class Review extends Component {
   }
 
   setPhoto = data => {
-    this.setState({photo: data});
+    this.setState({photo: data, newPhoto: true});
   };
 
   render () {
@@ -340,10 +341,10 @@ class Review extends Component {
       return <Loading />
     } else {
       return (
-        <ScrollView>
+        <ScrollView style={styles.scrollContainer}>
           <View>
-            <View>
-              <Text>Review For {this.state.locationName}</Text>
+            <View style={styles.headerView}>
+              <Text style={styles.header}>Review For {this.state.locationName}</Text>
             </View>
             <View>
               <Text>Price Rating:</Text>
@@ -382,14 +383,12 @@ class Review extends Component {
                 multiline={true}
                 numberOfLines={4} />
             </View>
-            <View>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text>Cancel</Text>
+            <View style={styles.btnContainer}>
+              <TouchableOpacity style={styles.submitBtn} onPress={() => navigation.goBack()}>
+                <Text style={styles.submitBtnTxt}>Cancel</Text>
               </TouchableOpacity>
-            </View>
-            <View>
-              <TouchableOpacity onPress={() => this.submitReview(this.state.reviewType)}>
-                <Text>{this.state.reviewType}</Text>
+              <TouchableOpacity style={styles.submitBtn} onPress={() => this.submitReview(this.state.reviewType)}>
+                <Text style={styles.submitBtnTxt}>{this.state.reviewType}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -407,6 +406,45 @@ const styles = StyleSheet.create({
   StarImage: {
     width: 35,
     height: 35
+  },
+  scrollContainer: {
+    backgroundColor: '#FFA5AD',
+    flexDirection: 'column',
+    flex: 1
+  },
+  image: {
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    height: 225
+  },
+  headerView: {
+    backgroundColor:'rgba(255, 165, 173,0.75)',
+    textAlign: 'center'
+  },
+  header: {
+    color: 'white',
+    fontSize: 50,
+    textAlign: 'center',
+    opacity: 1,
+    fontWeight: 'bold'
+  },
+  btnContainer: {
+    flexDirection: 'row',
+    textAlign: 'center',
+    justifyContent: 'center',
+    marginTop: 20
+  },
+  submitBtn: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
+    margin: 10
+  },
+  submitBtnTxt: {
+    fontSize: 20,
+    color: 'white',
+    fontFamily: 'MinionPro-Regular'
   }
 })
 

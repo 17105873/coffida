@@ -114,9 +114,9 @@ class Home extends Component {
 
   sortBy(prop){
     return function(a,b){
-       if (a[prop] > b[prop]){
+       if (a[prop] < b[prop]){
           return 1;
-       } else if(a[prop] < b[prop]){
+       } else if(a[prop] > b[prop]){
           return -1;
        }
        return 0;
@@ -184,8 +184,13 @@ class Home extends Component {
                 }}
               >
                 <View style={styles.itemContainer}>
-                  <Text style={styles.locationName}>{item.location_name}</Text>
-                  <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                  <View style={styles.mainDetails}>
+                    <Text style={styles.locationName}>{item.location_name}</Text>
+                    <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                  </View>
+                  <View style={styles.locationContainer}>
+                    <Text style={styles.locationTown}>{item.location_town}</Text>
+                  </View>
                 </View>
               </TouchableOpacity>
             </View>
@@ -260,7 +265,8 @@ const styles = StyleSheet.create({
   favLocations: {
     fontWeight: 'bold',
     fontSize: 25,
-    color: 'red'
+    color: 'red',
+    paddingLeft: 10
   },
   noFavLocations: {
     fontSize: 20,
@@ -270,7 +276,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderColor: 'red',
     borderBottomWidth: 2,
+    flexDirection: 'column'
+  },
+  mainDetails: {
     flexDirection: 'row'
+  },
+  locationContainer: {
+    flex: 1
   },
   locationName: {
     fontSize: 20,
@@ -285,6 +297,12 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     fontFamily: 'Courier New',
     fontWeight: 'bold'
+  },
+  locationTown: {
+    color: 'black',
+    flex: 1,
+    paddingTop: 5,
+    fontFamily: 'Courier New Bold'
   }
 })
 

@@ -81,9 +81,9 @@ class ListView extends Component {
 
   sortBy(prop){
     return function(a,b){
-       if (a[prop] > b[prop]){
+       if (a[prop] < b[prop]){
           return 1;
-       } else if(a[prop] < b[prop]){
+       } else if(a[prop] > b[prop]){
           return -1;
        }
        return 0;
@@ -146,8 +146,13 @@ class ListView extends Component {
                     }}
                   >
                     <View style={styles.itemContainer}>
-                      <Text style={styles.locationName}>{item.location_name}</Text>
-                      <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                      <View style={styles.mainDetails}>
+                        <Text style={styles.locationName}>{item.location_name}</Text>
+                        <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                      </View>
+                      <View style={styles.locationContainer}>
+                        <Text style={styles.locationTown}>{item.location_town}</Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -171,7 +176,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderColor: 'red',
     borderBottomWidth: 2,
+    flexDirection: 'column'
+  },
+  mainDetails: {
     flexDirection: 'row'
+  },
+  locationContainer: {
+    flex: 1
   },
   locationName: {
     fontSize: 20,
@@ -187,6 +198,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier New',
     fontWeight: 'bold'
   },
+  locationTown: {
+    color: 'black',
+    flex: 1,
+    paddingTop: 5,
+    fontFamily: 'Courier New Bold'
+  },
   label: {
     color: 'red',
     fontWeight: 'bold',
@@ -200,7 +217,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    color: 'red',
+    color: 'white',
     fontSize: 50,
     fontWeight: 'bold',
     textAlign: 'center'

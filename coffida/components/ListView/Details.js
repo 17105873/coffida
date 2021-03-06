@@ -33,6 +33,7 @@ class Details extends Component {
       this.checkLoggedIn()
 
       this.getDetails(false)
+
       this.getUserSpecific()
     })
   }
@@ -410,7 +411,7 @@ class Details extends Component {
     if(this.state.images[currentReviewId] !== null && this.state.images[currentReviewId] !== undefined) {
 
       return(
-        <View><Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/></View>
+        <View style={styles.reviewImg}><Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/></View>
       )
     } else {
       return
@@ -514,24 +515,6 @@ class Details extends Component {
 }
 
 const styles = StyleSheet.create({
-  loadingScrollContainer: {
-    backgroundColor: '#FFA5AD',
-    flexDirection: 'column',
-    flex: 1
-  },
-  loadingHeaderView: {
-    backgroundColor:'rgba(0,0,0,0.75)',
-    textAlign: 'center',
-    justifyContent: 'center',
-    flex: 1
-  },
-  loadingHeader: {
-    color: 'white',
-    fontSize: 50,
-    textAlign: 'center',
-    opacity: 1,
-    fontFamily: 'Courier New Bold'
-  },
   scrollContainer: {
     backgroundColor: '#FFA5AD',
     flexDirection: 'column',
@@ -670,7 +653,16 @@ const styles = StyleSheet.create({
   likeContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    marginLeft: 10 
+    marginLeft: 10,
+    marginBottom: 5
+  },
+  reviewImg: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    padding: 5,
+    position: 'absolute',
+    bottom: 0,
+    right: 0
   }
 })
 
