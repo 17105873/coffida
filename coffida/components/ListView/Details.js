@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, ActivityIndicator } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import Loading from '../Loading/Loading'
 
@@ -18,6 +19,7 @@ class Details extends Component {
       favLocation: false,
       locationId: this.props.route.params.locationId,
       locationName: '',
+      likeCount: [],
       likeButton: [],
       actionButton: [],
       details: [],
@@ -70,6 +72,8 @@ class Details extends Component {
       if (blnUpdate == false) {
         this.initialiseImage(responseJson)
       }
+
+      this.initialiseLikeCount(responseJson)
 
       this.setState({
         locationName: responseJson.location_name,
@@ -181,6 +185,7 @@ class Details extends Component {
     })
     .then(() => {
         this.state.likeButton[reviewId] = ( method == 'post' ) ? true : false
+        this.state.likeCount[reviewId] = (method == 'post') ? (this.state.likeCount[reviewId] + 1) : (this.state.likeCount[reviewId] - 1)
         this.setState({
           isLoading: false
         })
@@ -311,6 +316,18 @@ class Details extends Component {
     })
   }
 
+  initialiseLikeCount(responseJson) {
+    let likeCounter = {}
+
+    responseJson.location_reviews.map((item) => {
+      likeCounter[item.review_id] = item.likes
+    })
+
+    this.setState({
+      likeCount: likeCounter
+    })
+  }
+
   initialiseFavouriteLoc(responseJson) {
     responseJson.favourite_locations.map((item) => {
       if (item.location_id == this.state.locationId) {
@@ -324,20 +341,20 @@ class Details extends Component {
   renderButtons(item) {
     return(
       <View style={styles.actionBtnContainer}>
-        {this.renderLikeButton(item.review_id)}
+        {this.renderLikeButton(item)}
         {this.renderDeleteButton(item)}
       </View>
     )
   }
 
-  renderLikeButton(currentReviewId) {
+  renderLikeButton(item) {
 
-    if(!this.state.likeButton[currentReviewId]) {
+    if(!this.state.likeButton[item.review_id]) {
       return(
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => {
-            this.reviewAction(currentReviewId, 'post');
+            this.reviewAction(item.review_id, 'post');
           }}>
           <Text style={styles.actionBtnTxt}>Like</Text>
         </TouchableOpacity>
@@ -347,7 +364,7 @@ class Details extends Component {
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => {
-            this.reviewAction(currentReviewId, 'delete');
+            this.reviewAction(item.review_id, 'delete');
           }}>
           <Text style={styles.actionBtnTxt}>UnLike</Text>
         </TouchableOpacity>
@@ -478,6 +495,10 @@ class Details extends Component {
                   <Text style={styles.reviewBody}>{item.review_body}</Text>
                   {this.renderButtons(item)}
                   {this.renderImage(item.review_id)}
+                  <View style={styles.likeContainer}>
+                    <Ionicons name='heart' size={20} color='red' />
+                    <Text style={styles.likeCount}>{this.state.likeCount[item.review_id]}</Text>
+                  </View>
                 </View>
               )}
               keyExtractor={(item,index) => item.review_id.toString()}
@@ -641,6 +662,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     fontSize: 22
+  },
+  likeCount: {
+    color: 'red',
+    fontWeight: 'bold'
+  },
+  likeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginLeft: 10 
   }
 })
 
