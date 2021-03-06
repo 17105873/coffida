@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, ActivityIndicator } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+
+import Loading from '../Loading/Loading'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -19,7 +21,8 @@ class Details extends Component {
       likeButton: [],
       actionButton: [],
       details: [],
-      images: []
+      images: [],
+      opacity: 1
     }
   }
 
@@ -397,7 +400,7 @@ class Details extends Component {
     }
   }
 
-  renderRating() {
+  renderRating(value, ratingType) {
     let ratingRow = [];
  
     for(var i = 1; i <= 5; i++ )
@@ -405,8 +408,8 @@ class Details extends Component {
       ratingRow.push(
         <Image 
           key = {i}
-          style = { styles.StarImage }
-          source = { ( i <= this.state.details.avg_overall_rating ) ? require(starActive) : require(starBlank) } />
+          style = { ratingType }
+          source = { ( i <= value ) ? require(starActive) : require(starBlank) } />
       );
     }
 
@@ -427,26 +430,19 @@ class Details extends Component {
     }
 
     if(this.state.isLoading == true) {
-      return (
-        <View style={styles.loadingScrollContainer}>
-          <View style={styles.loadingHeaderView}>
-            <Text style={styles.loadingHeader}>Loading...</Text>
-          </View>
-        </View>
+      return(
+        <Loading />
       )
     } else {
-
-      const imagePath = { uri: this.state.details.photo_path };
-
       return (
         <View style={styles.scrollContainer}>
-          <ImageBackground source={imagePath} style={styles.image}>
+          <ImageBackground source={{uri: this.state.details.photo_path}} style={styles.image}>
             <View style={styles.headerView}>
               <Text style={styles.header}>{this.state.details.location_name}</Text>
               <Text style={styles.headerLocation}>{this.state.details.location_town}</Text>
             </View>
-            <View style={styles.ratingRow}>
-              {this.renderRating()}
+            <View style={styles.ratingRowLoc}>
+              {this.renderRating(this.state.details.avg_overall_rating, styles.locationRating)}
             </View>
           </ImageBackground>
           <View style={styles.body}>
@@ -476,6 +472,9 @@ class Details extends Component {
               data={this.state.details.location_reviews}
               renderItem={({item}) => (
                 <View style={{borderBottomWidth: 1, borderColor: 'red'}}>
+                  <View style={styles.ratingRow}>
+                    {this.renderRating(item.overall_rating, styles.indReviewRating)}
+                  </View>
                   <Text style={styles.reviewBody}>{item.review_body}</Text>
                   {this.renderButtons(item)}
                   {this.renderImage(item.review_id)}
@@ -579,11 +578,22 @@ const styles = StyleSheet.create({
   ratingRow: {
     backgroundColor:'rgba(255, 165, 173,0.75)',
     flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginLeft: 10,
+    marginTop: 10
+  },
+  ratingRowLoc: {
+    backgroundColor:'rgba(255, 165, 173,0.75)',
+    flexDirection: 'row',
     justifyContent: 'center'
   },
-  StarImage: {
+  locationRating: {
     width: 35,
     height: 35
+  },
+  indReviewRating: {
+    width: 30,
+    height: 30
   },
   btnContainer: {
     flexDirection: 'row',
@@ -619,7 +629,7 @@ const styles = StyleSheet.create({
   },
   reviewRating: {
     color: 'red',
-    fontSize: 20,
+    fontSize: 25,
     fontFamily: 'MinionPro-Regular',
     fontWeight: 'bold',
     paddingHorizontal: 10,
@@ -627,10 +637,10 @@ const styles = StyleSheet.create({
   },
   reviewBody: {
     fontFamily: 'CourierNewPSMT',
-    fontWeight: 'bold',
     color: 'red',
     paddingHorizontal: 10,
-    paddingVertical: 5
+    paddingVertical: 5,
+    fontSize: 22
   }
 })
 

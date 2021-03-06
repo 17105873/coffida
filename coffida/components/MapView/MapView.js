@@ -4,6 +4,8 @@ import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
+import Loading from '../Loading/Loading'
+
 import iconMarker from '../../resources/img/marker_sm.png'
 import iconMarkerLocation from '../../resources/img/marker_sm_blue.png'
 
@@ -80,10 +82,7 @@ class Map extends Component {
 
     if (this.state.isLoading) {
       return (
-        <View style={styles.container}>
-          <Text>Map View</Text>
-          <Text>Loading...</Text>
-        </View>
+        <Loading />
       )
     } else {
       return (

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
+import Loading from '../Loading/Loading'
+
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
 
@@ -18,8 +20,6 @@ class Review extends Component {
       locationName: this.props.route.params.locationName,
       reviewType: 'Submit',
       reviewId: 0,
-      min_rating: 0,
-      max_rating: 5,
       overall_rating: 0,
       price_rating: 0,
       quality_rating: 0,
@@ -59,9 +59,12 @@ class Review extends Component {
         clenliness_rating: this.props.route.params.clenliness_rating,
         review_body: this.props.route.params.review_body,
         reviewType: 'Update',
-        reviewId: this.props.route.params.review_id
+        reviewId: this.props.route.params.review_id,
+        isLoading: false
       })
       this.getImage(this.props.route.params.review_id)
+    } else {
+      this.setState({ isLoading: false })
     }
   }
 
@@ -284,7 +287,7 @@ class Review extends Component {
   renderRating(ratingType) {
     let ratingRow = [];
  
-    for( var i = 1; i <= this.state.max_rating; i++ )
+    for( var i = 1; i <= 5; i++ )
     {
       ratingRow.push(
         <TouchableOpacity
@@ -333,62 +336,66 @@ class Review extends Component {
 
     const navigation = this.props.navigation
 
-    return (
-      <ScrollView>
-        <View>
+    if (this.state.isLoading) {
+      return <Loading />
+    } else {
+      return (
+        <ScrollView>
           <View>
-            <Text>Review For {this.state.locationName}</Text>
+            <View>
+              <Text>Review For {this.state.locationName}</Text>
+            </View>
+            <View>
+              <Text>Price Rating:</Text>
+                <View style={styles.ratingRow}>{this.renderRating('price_rating')}</View>
+            </View>
+            <View>
+              <Text>Quality Rating:</Text>
+                <View style={styles.ratingRow}>{this.renderRating('quality_rating')}</View>
+            </View>
+            <View>
+              <Text>Cleanliness Rating:</Text>
+                <View style={styles.ratingRow}>{this.renderRating('clenliness_rating')}</View>
+            </View>
+            <View>
+              <Text>Overall Rating:</Text>
+                <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
+            </View>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('TakePicture', {
+                    setPhoto: this.setPhoto
+                  });
+                }}
+              >
+                <Text>Take Photo</Text>
+              </TouchableOpacity>
+            </View>
+            <View>{this.imageControl()}</View>
+            <View>
+              <Text>Review:</Text>
+              <TextInput
+                placeholder="Review Details..."
+                onChangeText={(review_body) => this.setState({review_body})}
+                value={this.state.review_body}
+                multiline={true}
+                numberOfLines={4} />
+            </View>
+            <View>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <View>
+              <TouchableOpacity onPress={() => this.submitReview(this.state.reviewType)}>
+                <Text>{this.state.reviewType}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View>
-            <Text>Price Rating:</Text>
-              <View style={styles.ratingRow}>{this.renderRating('price_rating')}</View>
-          </View>
-          <View>
-            <Text>Quality Rating:</Text>
-              <View style={styles.ratingRow}>{this.renderRating('quality_rating')}</View>
-          </View>
-          <View>
-            <Text>Cleanliness Rating:</Text>
-              <View style={styles.ratingRow}>{this.renderRating('clenliness_rating')}</View>
-          </View>
-          <View>
-            <Text>Overall Rating:</Text>
-              <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
-          </View>
-          <View>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('TakePicture', {
-                  setPhoto: this.setPhoto
-                });
-              }}
-            >
-              <Text>Take Photo</Text>
-            </TouchableOpacity>
-          </View>
-          <View>{this.imageControl()}</View>
-          <View>
-            <Text>Review:</Text>
-            <TextInput
-              placeholder="Review Details..."
-              onChangeText={(review_body) => this.setState({review_body})}
-              value={this.state.review_body}
-              multiline={true}
-              numberOfLines={4} />
-          </View>
-          <View>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          <View>
-            <TouchableOpacity onPress={() => this.submitReview(this.state.reviewType)}>
-              <Text>{this.state.reviewType}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    )
+        </ScrollView>
+      )
+    }
   }
 } 
 

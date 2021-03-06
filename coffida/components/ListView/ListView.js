@@ -3,6 +3,8 @@ import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, 
 import AsyncStorage from '@react-native-community/async-storage'
 import {Picker} from '@react-native-picker/picker'
 
+import Loading from '../Loading/Loading'
+
 let currentLat
 let currentLng
 
@@ -113,9 +115,7 @@ class ListView extends Component {
     if (this.state.isLoading == true)
     {
       return (
-        <View style={styles.scrollContainer}>
-          <Text style={styles.header}>Locations</Text>
-        </View>
+        <Loading />
       )
     } else {
       return (

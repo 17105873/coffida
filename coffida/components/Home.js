@@ -5,6 +5,8 @@ import { Text, View, StyleSheet, ImageBackground, ScrollView, ToastAndroid, Perm
 import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 
+import Loading from './Loading/Loading'
+
 import backgroundImg from '../resources/img/home_bg2.png'
 
 async function requestLocationPermission() {
@@ -205,16 +207,7 @@ class Home extends Component {
     if (this.state.isLoading == true)
     {
       return (
-        <View style={styles.scrollContainer}>
-          <ImageBackground source={backgroundImg} style={styles.image}>
-            <View style={styles.headerView}>
-              <Text style={styles.header}>Welcome</Text>
-            </View>
-          </ImageBackground>
-          <View style={styles.favHeader}>
-            <Text style={styles.favLocations}>Your Favourite Locations</Text>
-          </View>
-        </View>
+        <Loading />
       )
     } else {
       return (

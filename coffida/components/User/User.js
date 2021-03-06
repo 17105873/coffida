@@ -3,11 +3,14 @@ import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, 
 import AsyncStorage from '@react-native-community/async-storage'
 import { CommonActions } from '@react-navigation/native'
 
+import Loading from '../Loading/Loading'
+
 class UserDetails extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
+      isLoading: true,
       first_name: '',
       last_name: '',
       email: '',
@@ -156,37 +159,44 @@ class UserDetails extends Component {
   }
 
   render () {
-    return (
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.headerView}>
-          <Text style={styles.header}>Update Details</Text>
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Forename:</Text>
-          <TextInput placeholder='Enter Forename' placeholderTextColor='red' style={styles.input} onChangeText={(first_name) => this.setState({ first_name })} value={this.state.first_name} />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Surname:</Text>
-          <TextInput placeholder='Enter Surname' placeholderTextColor='red' style={styles.input} onChangeText={(last_name) => this.setState({ last_name })} value={this.state.last_name} />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email Address:</Text>
-          <TextInput placeholder='Enter Email Address' placeholderTextColor='red' style={styles.input} onChangeText={(email) => this.setState({ email })} value={this.state.email} />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password:</Text>
-          <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input} onChangeText={(password) => this.setState({ password })} value={this.state.password} secureTextEntry />
-        </View>
-        <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.submitBtn} onPress={() => this.updateDetails()}>
-            <Text style={styles.submitBtnTxt}>Update Details</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.submitBtn} onPress={() => this.logOut()}>
-            <Text style={styles.submitBtnTxt}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    )
+
+    if(this.state.isLoading == true) {
+      return(
+        <Loading />
+      )
+    } else {
+      return (
+        <ScrollView style={styles.scrollContainer}>
+          <View style={styles.headerView}>
+            <Text style={styles.header}>Update Details</Text>
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Forename:</Text>
+            <TextInput placeholder='Enter Forename' placeholderTextColor='red' style={styles.input} onChangeText={(first_name) => this.setState({ first_name })} value={this.state.first_name} />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Surname:</Text>
+            <TextInput placeholder='Enter Surname' placeholderTextColor='red' style={styles.input} onChangeText={(last_name) => this.setState({ last_name })} value={this.state.last_name} />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email Address:</Text>
+            <TextInput placeholder='Enter Email Address' placeholderTextColor='red' style={styles.input} onChangeText={(email) => this.setState({ email })} value={this.state.email} />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password:</Text>
+            <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input} onChangeText={(password) => this.setState({ password })} value={this.state.password} secureTextEntry />
+          </View>
+          <View style={styles.btnContainer}>
+            <TouchableOpacity style={styles.submitBtn} onPress={() => this.updateDetails()}>
+              <Text style={styles.submitBtnTxt}>Update Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.submitBtn} onPress={() => this.logOut()}>
+              <Text style={styles.submitBtnTxt}>Log Out</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )
+    }
   }
 }
 
@@ -230,15 +240,16 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   submitBtn: {
-    padding: 10,
-    borderWidth: 2,
-    borderColor: 'red',
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
     margin: 10
   },
   submitBtnTxt: {
     fontSize: 25,
-    color: 'red',
-    fontWeight: 'bold'
+    color: 'white',
+    fontFamily: 'MinionPro-Regular'
   }
 })
 
