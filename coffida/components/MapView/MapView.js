@@ -17,7 +17,9 @@ class Map extends Component {
       isLoading: true,
       latitude: null,
       longitude: null,
-      mapData: []
+      currentLocation: null,
+      mapData: [],
+      locationDetail: null
     }
   }
 
@@ -43,7 +45,11 @@ class Map extends Component {
   setCurrentLocation = async() => {
     this.setState({
       latitude: parseFloat(await AsyncStorage.getItem('@latitude')),
-      longitude: parseFloat(await AsyncStorage.getItem('@longitude'))
+      longitude: parseFloat(await AsyncStorage.getItem('@longitude')),
+      currentLocation: {
+        longitude: parseFloat(await AsyncStorage.getItem('@longitude')),
+        latitude: parseFloat(await AsyncStorage.getItem('@latitude'))
+      }
     })
   }
 
@@ -78,6 +84,54 @@ class Map extends Component {
     })
   }
 
+  //function to retrieve distance between 2 points (as the crow flies)
+  distance(lat, lon) {
+
+    if (this.state.latitude == null){
+      return 0
+    }
+
+    var p = 0.017453292519943295;    // Math.PI / 180
+    var c = Math.cos;
+    var a = 0.5 - c((lat - this.state.latitude) * p)/2 + 
+            c(this.state.latitude * p) * c(lat * p) * 
+            (1 - c((lon - this.state.longitude) * p))/2;
+  
+    return (12742 * Math.asin(Math.sqrt(a))).toFixed(2) // 2 * R; R = 6371 Radius of earth in km
+  }
+
+  loadLocation() {
+
+    if (this.state.locationDetail !== null)
+    {
+      return (
+        <View style={styles.locationDetails}>
+          <View style={styles.locHeader}>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('Details', {
+                    locationId: this.state.locationDetail.location_id
+                  });
+                }}
+              >
+                <View>
+                  <View style={styles.mainDetails}>
+                    <Text style={styles.locationName}>{this.state.locationDetail.location_name}</Text>
+                    <Text style={styles.locationDistance}>{this.distance(this.state.locationDetail.latitude, this.state.locationDetail.longitude)} km</Text>
+                  </View>
+                  <View style={styles.locationContainer}>
+                    <Text style={styles.locationTown}>{this.state.locationDetail.location_town}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )
+    }
+  }
+
   render () {
 
     if (this.state.isLoading) {
@@ -92,8 +146,8 @@ class Map extends Component {
               style={StyleSheet.absoluteFillObject}
               provider={PROVIDER_GOOGLE}
               region={{
-                latitude: this.state.latitude,
-                longitude: this.state.longitude,
+                latitude: this.state.currentLocation.latitude, 
+                longitude: this.state.currentLocation.longitude, 
                 latitudeDelta: 0.012,
                 longitudeDelta: 0.012
               }}
@@ -106,6 +160,15 @@ class Map extends Component {
                   longitude: marker.longitude}}
                   title={marker.location_name}
                   description={marker.location_town}
+                  onPress={() => {
+                    this.setState({
+                      locationDetail: marker,
+                      currentLocation: {
+                        longitude: marker.longitude,
+                        latitude: marker.latitude
+                      }
+                    })
+                  }}
                 />
               ))}
               <Marker
@@ -117,6 +180,7 @@ class Map extends Component {
               />
             </MapView>
           </View>
+          {this.loadLocation()}
         </View>
       )
     }
@@ -125,7 +189,7 @@ class Map extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 4,
     backgroundColor: '#FFA5AD'
   },
   info: {
@@ -136,6 +200,50 @@ const styles = StyleSheet.create({
     top: 100,
     left: 50
   },
+  locHeader: {
+    flex: 1.5,
+    padding: 10
+  },
+  locationDetails: {
+    flex: 1,
+    backgroundColor: '#FFA5AD'
+  },
+  itemContainer: {
+    padding: 10,
+    flexDirection: 'column'
+  },
+  mainDetails: {
+    flexDirection: 'row'
+  },
+  locationName: {
+    fontSize: 30,
+    color: 'red',
+    fontFamily: 'Courier New',
+    fontWeight: 'bold',
+    flex: 3
+  },
+  locationDistance: {
+    color: 'red',
+    flex: 1,
+    paddingTop: 10,
+    fontFamily: 'Courier New',
+    fontWeight: 'bold',
+    fontSize: 20
+  },
+  locationTown: {
+    color: 'black',
+    paddingTop: 5,
+    fontFamily: 'Courier New Bold',
+    fontSize: 25
+  },
+  selectMarker: {
+    color: 'black',
+    paddingTop: 5,
+    fontWeight: 'bold',
+    fontFamily: 'Courier New Bold',
+    fontSize: 25,
+    padding: 20
+  }
 });
 
 export default Map

@@ -415,7 +415,7 @@ class Details extends Component {
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
                 <Pressable style={styles.closeModal} onPress={() => this.setModalVisible(false)}>
-                  <Text style={styles.closeModal}>Close X</Text>
+                  <Text style={styles.closeModalBtn}>Close X</Text>
                 </Pressable>
                 <Image style={{width: 350, height: 350, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/>
               </View>
@@ -699,8 +699,10 @@ const styles = StyleSheet.create({
   },
   closeModal: {
     position: 'absolute',
-    right: 20,
-    top: 5,
+    right: 40,
+    top: 5
+  },
+  closeModalBtn: {
     fontWeight: 'bold',
     color: 'red',
     fontSize: 25,
