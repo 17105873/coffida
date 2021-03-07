@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
   header: {
     color: 'white',
     fontSize: 50,
-    fontWeight: 'bold',
     textAlign: 'center',
     opacity: 1
   },

@@ -317,12 +317,10 @@ class Review extends Component {
       }
 
       return(
-        <View>
-          <View>
-            <Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: imgSrc}}/>
-          </View>
-          <TouchableOpacity onPress={() => this.deletePhoto()}>
-            <Text>Delete Photo</Text>
+        <View style={styles.photoContainer}>
+          <Image style={{width: 150, height: 125, borderWidth: 1, borderColor: 'black', padding: 15, marginLeft: 5}} source={{uri: imgSrc}}/>
+          <TouchableOpacity style={styles.deletePhotoBtn} onPress={() => this.deletePhoto()}>
+            <Text style={styles.submitBtnTxt}>Delete Photo</Text>
           </TouchableOpacity>
         </View>
       )
@@ -346,41 +344,44 @@ class Review extends Component {
             <View style={styles.headerView}>
               <Text style={styles.header}>Review For {this.state.locationName}</Text>
             </View>
-            <View>
-              <Text>Price Rating:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.ratingLabel}>Price Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('price_rating')}</View>
             </View>
-            <View>
-              <Text>Quality Rating:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.ratingLabel}>Quality Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('quality_rating')}</View>
             </View>
-            <View>
-              <Text>Cleanliness Rating:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.ratingLabel}>Cleanliness Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('clenliness_rating')}</View>
             </View>
-            <View>
-              <Text>Overall Rating:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.ratingLabel}>Overall Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
             </View>
-            <View>
+            <View style={styles.photoContainer}>
               <TouchableOpacity
+                style={styles.takePhotoBtn}
                 onPress={() => {
                   this.props.navigation.navigate('TakePicture', {
                     setPhoto: this.setPhoto
                   });
                 }}
               >
-                <Text>Take Photo</Text>
+                <Text style={styles.submitBtnTxt}>Take Photo</Text>
               </TouchableOpacity>
             </View>
-            <View>{this.imageControl()}</View>
-            <View>
-              <Text>Review:</Text>
+            {this.imageControl()}
+            <View style={styles.inputContainer}>
+              <Text style={styles.ratingLabel}>Review:</Text>
               <TextInput
-                placeholder="Review Details..."
+                placeholder='Review Details...'
+                placeholderTextColor='red'
                 onChangeText={(review_body) => this.setState({review_body})}
                 value={this.state.review_body}
                 multiline={true}
+                style={styles.reviewBody}
                 numberOfLines={4} />
             </View>
             <View style={styles.btnContainer}>
@@ -425,8 +426,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 50,
     textAlign: 'center',
-    opacity: 1,
+    opacity: 1
+  },
+  ratingLabel: {
+    fontSize: 20,
+    color: 'red',
+    fontFamily: 'Courier New',
     fontWeight: 'bold'
+  },
+  reviewBody: {
+    borderWidth: 1,
+    borderColor: 'red',
+    fontSize: 20,
+    color: 'red',
+    fontFamily: 'Courier New'
   },
   btnContainer: {
     flexDirection: 'row',
@@ -445,6 +458,35 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white',
     fontFamily: 'MinionPro-Regular'
+  },
+  inputContainer: {
+    flex: 1,
+    textAlign: 'center',
+    justifyContent: 'center',
+    padding: 15
+  },
+  photoContainer: {
+    flex: 1,
+    textAlign: 'left',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 15
+  },
+  takePhotoBtn: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
+    margin: 5,
+    width: 125
+  },
+  deletePhotoBtn: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
+    margin: 5,
+    width: 140,
+    height: 60
   }
 })
 

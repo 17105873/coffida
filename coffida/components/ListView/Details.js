@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, ActivityIndicator } from 'react-native'
+import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, Modal, Pressable } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
@@ -16,6 +16,7 @@ class Details extends Component {
 
     this.state = {
       isLoading: true,
+      modalVisible: false,
       favLocation: false,
       locationId: this.props.route.params.locationId,
       locationName: '',
@@ -73,9 +74,7 @@ class Details extends Component {
       if (blnUpdate == false) {
         this.initialiseImage(responseJson)
       }
-
       this.initialiseLikeCount(responseJson)
-
       this.setState({
         locationName: responseJson.location_name,
         details: responseJson
@@ -151,8 +150,7 @@ class Details extends Component {
       }
     })
     .then((responseJson) => {
-      this.initialiseLikeBtn(responseJson)
-      this.initialiseActionBtn(responseJson)
+      this.initialiseBtn(responseJson)
       this.initialiseFavouriteLoc(responseJson)
       this.setState({
         isLoading: false
@@ -275,8 +273,9 @@ class Details extends Component {
     
   }
 
-  initialiseLikeBtn(responseJson) {
+  initialiseBtn(responseJson) {
     let likeBtn = {}
+    let actionBtn = {}
 
     // Loop through location reviews & liked reviews and assign true/false to corresponding object item
     this.state.details.location_reviews.map((item) => {        
@@ -289,18 +288,7 @@ class Details extends Component {
       if(!likeBtn[item.review_id]) {
         likeBtn[item.review_id] = false
       }
-    })
 
-    this.setState({
-      likeButton: likeBtn
-    })
-  }
-
-  initialiseActionBtn(responseJson) {
-    let actionBtn = {}
-
-    // Loop through location reviews & user written reviews and assign true/false to corresponding object item
-    this.state.details.location_reviews.map((item) => {
       responseJson.reviews.map((userItem) => {
         if (item.review_id == userItem.review.review_id) {
           actionBtn[item.review_id] = true
@@ -313,6 +301,7 @@ class Details extends Component {
     })
 
     this.setState({
+      likeButton: likeBtn,
       actionButton: actionBtn
     })
   }
@@ -411,7 +400,28 @@ class Details extends Component {
     if(this.state.images[currentReviewId] !== null && this.state.images[currentReviewId] !== undefined) {
 
       return(
-        <View style={styles.reviewImg}><Image style={{width: 100, height: 50, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/></View>
+        <View style={styles.reviewImg}>
+          <TouchableOpacity style={styles.reviewImg} onPress={() => this.setModalVisible(true)}>
+            <Image style={{width: 100, height: 75, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/>
+          </TouchableOpacity>
+          <Modal
+            animationType='slide'
+            transparent={true}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+              this.setModalVisible(false);
+            }}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Pressable style={styles.closeModal} onPress={() => this.setModalVisible(false)}>
+                  <Text style={styles.closeModal}>Close X</Text>
+                </Pressable>
+                <Image style={{width: 350, height: 350, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/>
+              </View>
+            </View>
+          </Modal>
+        </View>
       )
     } else {
       return
@@ -432,6 +442,10 @@ class Details extends Component {
     }
 
     return ratingRow;
+  }
+
+  setModalVisible = (visible) => {
+    this.setState({ modalVisible: visible });
   }
 
   render () {
@@ -533,8 +547,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 70,
     textAlign: 'center',
-    opacity: 1,
-    fontWeight: 'bold'
+    opacity: 1
   },
   headerLocation: {
     color: 'black',
@@ -663,6 +676,35 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'rgba(0, 0, 0,0.75)',
+    padding: 50,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  closeModal: {
+    position: 'absolute',
+    right: 20,
+    top: 5,
+    fontWeight: 'bold',
+    color: 'red',
+    fontSize: 25,
+    opacity: 1
   }
 })
 

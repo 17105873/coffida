@@ -54,17 +54,16 @@ class TakePicture extends Component {
           }}
           style={styles.camera}
           captureAudio={false}
-        />
-        <View>
-          <TouchableOpacity onPress={() => this.takePicture()}>
-            <Text>Take Photo</Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <Text>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+        >
+          <View style={styles.btnContainer}>
+            <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>
+              <Text style={styles.submitBtnTxt}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.submitBtn} onPress={() => this.takePicture()}>
+              <Text style={styles.submitBtnTxt}>Take Photo</Text>
+            </TouchableOpacity>
+          </View>
+        </RNCamera>
       </View>
     )
   }
@@ -73,6 +72,26 @@ class TakePicture extends Component {
 const styles = StyleSheet.create({
   camera: {
     flex: 1
+  },
+  btnContainer: {
+    position: 'absolute',
+    bottom: 0,
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  submitBtn: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: 'red',
+    margin: 10,
+    flex: 1
+  },
+  submitBtnTxt: {
+    fontSize: 20,
+    color: 'white',
+    fontFamily: 'MinionPro-Regular',
+    textAlign: 'center'
   }
 })
 
