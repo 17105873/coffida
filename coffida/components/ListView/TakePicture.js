@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet } from 'react-native'
+import { Text, View, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import { RNCamera } from 'react-native-camera'
-import { LogBox } from 'react-native';
+import { LogBox } from 'react-native'
 
-LogBox.ignoreLogs([
- 'Non-serializable values were found in the navigation state',
-]);
+import GlobalStyles from '../helpers/style'
+
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state'])
 
 class TakePicture extends Component {
   constructor (props) {
@@ -56,11 +56,11 @@ class TakePicture extends Component {
           captureAudio={false}
         >
           <View style={styles.btnContainer}>
-            <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>
-              <Text style={styles.submitBtnTxt}>Cancel</Text>
+            <TouchableOpacity style={[GlobalStyles.submitBtn, styles.submitBtn]} onPress={() => this.props.navigation.goBack()}>
+              <Text style={[GlobalStyles.submitBtnTxt, styles.submitBtnTxt]}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitBtn} onPress={() => this.takePicture()}>
-              <Text style={styles.submitBtnTxt}>Take Photo</Text>
+            <TouchableOpacity style={[GlobalStyles.submitBtn, styles.submitBtn]} onPress={() => this.takePicture()}>
+              <Text style={[GlobalStyles.submitBtnTxt, styles.submitBtnTxt]}>Take Photo</Text>
             </TouchableOpacity>
           </View>
         </RNCamera>
@@ -80,17 +80,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   submitBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
-    margin: 10,
     flex: 1
   },
   submitBtnTxt: {
-    fontSize: 20,
-    color: 'white',
-    fontFamily: 'MinionPro-Regular',
     textAlign: 'center'
   }
 })

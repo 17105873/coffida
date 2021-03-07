@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, StyleSheet, TouchableOpacity, ToastAndroid, PermissionsAndroid } from 'react-native'
-import GeoLocation from 'react-native-geolocation-service'
+import { Text, View, StyleSheet, TouchableOpacity, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 import Loading from '../Loading/Loading'
+import Helper from '../helpers/Helper'
 
 import iconMarker from '../../resources/img/marker_sm.png'
 import iconMarkerLocation from '../../resources/img/marker_sm_blue.png'
@@ -43,6 +43,9 @@ class Map extends Component {
   }
 
   setCurrentLocation = async() => {
+
+    // CurrentLocation Used For Map Marker and Positioning
+    // Lat & Long Used to calculate distance From Current Location 
     this.setState({
       latitude: parseFloat(await AsyncStorage.getItem('@latitude')),
       longitude: parseFloat(await AsyncStorage.getItem('@longitude')),
@@ -84,22 +87,6 @@ class Map extends Component {
     })
   }
 
-  //function to retrieve distance between 2 points (as the crow flies)
-  distance(lat, lon) {
-
-    if (this.state.latitude == null){
-      return 0
-    }
-
-    var p = 0.017453292519943295;    // Math.PI / 180
-    var c = Math.cos;
-    var a = 0.5 - c((lat - this.state.latitude) * p)/2 + 
-            c(this.state.latitude * p) * c(lat * p) * 
-            (1 - c((lon - this.state.longitude) * p))/2;
-  
-    return (12742 * Math.asin(Math.sqrt(a))).toFixed(2) // 2 * R; R = 6371 Radius of earth in km
-  }
-
   loadLocation() {
 
     if (this.state.locationDetail !== null)
@@ -118,7 +105,7 @@ class Map extends Component {
                 <View>
                   <View style={styles.mainDetails}>
                     <Text style={styles.locationName}>{this.state.locationDetail.location_name}</Text>
-                    <Text style={styles.locationDistance}>{this.distance(this.state.locationDetail.latitude, this.state.locationDetail.longitude)} km</Text>
+                    <Text style={styles.locationDistance}>{Helper.calculateDistance(this.state.latitude, this.state.longitude, this.state.locationDetail.latitude, this.state.locationDetail.longitude)} km</Text>
                   </View>
                   <View style={styles.locationContainer}>
                     <Text style={styles.locationTown}>{this.state.locationDetail.location_town}</Text>

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
+import GlobalStyles from '../helpers/style'
+
 class Login extends Component{
   constructor(props){
     super(props);
@@ -78,7 +80,7 @@ class Login extends Component{
           <Text style={styles.label}>Password:</Text>
           <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input}  onChangeText={(password) => this.setState({password})} value={this.state.password} secureTextEntry />
         </View>
-        <View style={styles.btnContainer}>
+        <View style={[GlobalStyles.btnContainer, styles.btnContainer]}>
           <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>
             <Text style={styles.submitBtnTxt}>Cancel</Text>
           </TouchableOpacity>
@@ -126,9 +128,6 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   btnContainer: {
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center',
     marginTop: 50
   },
   submitBtn: {

@@ -3,6 +3,8 @@ import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, 
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Loading from '../Loading/Loading'
+import Helper from '../helpers/Helper'
+import GlobalStyles from '../helpers/style'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -52,18 +54,18 @@ class Review extends Component {
   checkUpdate() {
 
     //Instead Of Making Another Database Call Values Are Passed Through On Route
-    if(this.props.route.params.review_id !== undefined) {
+    if(this.props.route.params.reviewData !== undefined) {
       this.setState({
-        overall_rating: this.props.route.params.overall_rating,
-        price_rating: this.props.route.params.price_rating,
-        quality_rating: this.props.route.params.quality_rating,
-        clenliness_rating: this.props.route.params.clenliness_rating,
-        review_body: this.props.route.params.review_body,
+        overall_rating: this.props.route.params.reviewData.overall_rating,
+        price_rating: this.props.route.params.reviewData.price_rating,
+        quality_rating: this.props.route.params.reviewData.quality_rating,
+        clenliness_rating: this.props.route.params.reviewData.clenliness_rating,
+        review_body: this.props.route.params.reviewData.review_body,
         reviewType: 'Update',
-        reviewId: this.props.route.params.review_id,
+        reviewId: this.props.route.params.reviewData.review_id,
         isLoading: false
       })
-      this.getImage(this.props.route.params.review_id)
+      this.getImage(this.props.route.params.reviewData.review_id)
     } else {
       this.setState({ isLoading: false })
     }
@@ -81,8 +83,6 @@ class Review extends Component {
       endPoint = "http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId
       method = 'patch'
     }
-
-    const navigation = this.props.navigation
 
     //Validation TO DO
     if (this.state.price_rating == 0){
@@ -319,8 +319,8 @@ class Review extends Component {
       return(
         <View style={styles.photoContainer}>
           <Image style={{width: 150, height: 125, borderWidth: 1, borderColor: 'black', padding: 15, marginLeft: 5}} source={{uri: imgSrc}}/>
-          <TouchableOpacity style={styles.deletePhotoBtn} onPress={() => this.deletePhoto()}>
-            <Text style={styles.submitBtnTxt}>Delete Photo</Text>
+          <TouchableOpacity style={[GlobalStyles.submitBtn, styles.deletePhotoBtn]} onPress={() => this.deletePhoto()}>
+            <Text style={GlobalStyles.submitBtnTxt}>Delete Photo</Text>
           </TouchableOpacity>
         </View>
       )
@@ -339,41 +339,41 @@ class Review extends Component {
       return <Loading />
     } else {
       return (
-        <ScrollView style={styles.scrollContainer}>
+        <ScrollView style={GlobalStyles.scrollContainer}>
           <View>
             <View style={styles.headerView}>
               <Text style={styles.header}>Review For {this.state.locationName}</Text>
             </View>
-            <View style={styles.inputContainer}>
+            <View style={[GlobalStyles.inputContainer, styles.inputContainer]}>
               <Text style={styles.ratingLabel}>Price Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('price_rating')}</View>
             </View>
-            <View style={styles.inputContainer}>
+            <View style={[GlobalStyles.inputContainer, styles.inputContainer]}>
               <Text style={styles.ratingLabel}>Quality Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('quality_rating')}</View>
             </View>
-            <View style={styles.inputContainer}>
+            <View style={[GlobalStyles.inputContainer, styles.inputContainer]}>
               <Text style={styles.ratingLabel}>Cleanliness Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('clenliness_rating')}</View>
             </View>
-            <View style={styles.inputContainer}>
+            <View style={[GlobalStyles.inputContainer, styles.inputContainer]}>
               <Text style={styles.ratingLabel}>Overall Rating:</Text>
                 <View style={styles.ratingRow}>{this.renderRating('overall_rating')}</View>
             </View>
             <View style={styles.photoContainer}>
               <TouchableOpacity
-                style={styles.takePhotoBtn}
+                style={[GlobalStyles.submitBtn, styles.takePhotoBtn]}
                 onPress={() => {
                   this.props.navigation.navigate('TakePicture', {
                     setPhoto: this.setPhoto
                   });
                 }}
               >
-                <Text style={styles.submitBtnTxt}>Take Photo</Text>
+                <Text style={GlobalStyles.submitBtnTxt}>Take Photo</Text>
               </TouchableOpacity>
             </View>
             {this.imageControl()}
-            <View style={styles.inputContainer}>
+            <View style={[GlobalStyles.inputContainer, styles.inputContainer]}>
               <Text style={styles.ratingLabel}>Review:</Text>
               <TextInput
                 placeholder='Review Details...'
@@ -384,12 +384,12 @@ class Review extends Component {
                 style={styles.reviewBody}
                 numberOfLines={4} />
             </View>
-            <View style={styles.btnContainer}>
-              <TouchableOpacity style={styles.submitBtn} onPress={() => navigation.goBack()}>
-                <Text style={styles.submitBtnTxt}>Cancel</Text>
+            <View style={[GlobalStyles.btnContainer, styles.btnContainer]}>
+              <TouchableOpacity style={GlobalStyles.submitBtn} onPress={() => navigation.goBack()}>
+                <Text style={GlobalStyles.submitBtnTxt}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn} onPress={() => this.submitReview(this.state.reviewType)}>
-                <Text style={styles.submitBtnTxt}>{this.state.reviewType}</Text>
+              <TouchableOpacity style={GlobalStyles.submitBtn} onPress={() => this.submitReview(this.state.reviewType)}>
+                <Text style={GlobalStyles.submitBtnTxt}>{this.state.reviewType}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -407,16 +407,6 @@ const styles = StyleSheet.create({
   StarImage: {
     width: 35,
     height: 35
-  },
-  scrollContainer: {
-    backgroundColor: '#FFA5AD',
-    flexDirection: 'column',
-    flex: 1
-  },
-  image: {
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    height: 225
   },
   headerView: {
     backgroundColor:'rgba(255, 165, 173,0.75)',
@@ -442,27 +432,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier New'
   },
   btnContainer: {
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center',
     marginTop: 20
   },
-  submitBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
-    margin: 10
-  },
-  submitBtnTxt: {
-    fontSize: 20,
-    color: 'white',
-    fontFamily: 'MinionPro-Regular'
-  },
   inputContainer: {
-    flex: 1,
-    textAlign: 'center',
-    justifyContent: 'center',
     padding: 15
   },
   photoContainer: {
@@ -472,18 +444,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15
   },
   takePhotoBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
     margin: 5,
     width: 125
   },
   deletePhotoBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
     margin: 5,
     width: 140,
     height: 60

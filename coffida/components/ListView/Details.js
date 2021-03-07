@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import Loading from '../Loading/Loading'
+import Helper from '../helpers/Helper'
+import GlobalStyles from '../helpers/style'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -86,6 +88,30 @@ class Details extends Component {
     })
   }
 
+  getUserSpecific = async() => {
+
+    Helper.getUserDetails().then((responseJson) => {
+      if (responseJson == 'Login'){
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
+        return
+      } else if (responseJson == 'Error') {
+        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        return
+      } else {
+        this.initialiseBtn(responseJson)
+        this.initialiseFavouriteLoc(responseJson)
+        this.setState({
+          isLoading: false
+        })
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
   favouriteLocation = async ({favLoc}) => {
 
     var action
@@ -125,42 +151,6 @@ class Details extends Component {
       console.log(error);
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
-  }
-
-  getUserSpecific = async() => {
-
-    const token = await AsyncStorage.getItem('@session_token')
-    const userId = await AsyncStorage.getItem('@user_id')
-
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': token
-      }
-    })
-    .then((response) => {
-      if(response.status === 200){
-        return response.json()
-      } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
-        this.props.navigation.navigate('Login')
-      } else {
-        throw "Something went wrong. Please try again";
-      }
-    })
-    .then((responseJson) => {
-      this.initialiseBtn(responseJson)
-      this.initialiseFavouriteLoc(responseJson)
-      this.setState({
-        isLoading: false
-      })
-    })
-    .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
-    })
-
   }
 
   reviewAction = async(reviewId, method) => {
@@ -242,11 +232,13 @@ class Details extends Component {
           } else if (response.status === 401) {
             ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
             this.props.navigation.navigate('Login')
+            return
           } else if (response.status === 404) {
             //No Image For Review
             return null
           } else {
-            throw "Something went wrong. Please try again";
+            ToastAndroid.show("Something went wrong. Please try again", ToastAndroid.SHORT)
+            return null
           }
         })
         .then((response) => {
@@ -289,6 +281,7 @@ class Details extends Component {
         likeBtn[item.review_id] = false
       }
 
+      // Go through users reviews and assign whether can edit/delete review
       responseJson.reviews.map((userItem) => {
         if (item.review_id == userItem.review.review_id) {
           actionBtn[item.review_id] = true
@@ -307,6 +300,9 @@ class Details extends Component {
   }
 
   initialiseLikeCount(responseJson) {
+    
+    // Get Like Count For Each Review and Store In State
+
     let likeCounter = {}
 
     responseJson.location_reviews.map((item) => {
@@ -319,6 +315,9 @@ class Details extends Component {
   }
 
   initialiseFavouriteLoc(responseJson) {
+
+    // Check If User Has Favourited Location
+
     responseJson.favourite_locations.map((item) => {
       if (item.location_id == this.state.locationId) {
         this.setState({
@@ -371,14 +370,9 @@ class Details extends Component {
             style={styles.actionBtn}
             onPress={() => {
               this.props.navigation.navigate('Review', {
+                reviewData: currentItem,
                 locationId: this.state.details.location_id,
-                locationName: this.state.details.location_name,
-                review_id: currentItem.review_id,
-                overall_rating: currentItem.overall_rating,
-                price_rating: currentItem.price_rating,
-                quality_rating: currentItem.quality_rating,
-                clenliness_rating: currentItem.clenliness_rating,
-                review_body: currentItem.review_body
+                locationName: this.state.details.location_name
               });
             }}>
             <Text style={styles.actionBtnTxt}>Edit</Text>
@@ -397,12 +391,13 @@ class Details extends Component {
 
   renderImage(currentReviewId) {
 
+    // Rendering Image in Review With Modal
     if(this.state.images[currentReviewId] !== null && this.state.images[currentReviewId] !== undefined) {
 
       return(
         <View style={styles.reviewImg}>
           <TouchableOpacity style={styles.reviewImg} onPress={() => this.setModalVisible(true)}>
-            <Image style={{width: 100, height: 75, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/>
+            <Image style={styles.imgThumb} source={{uri: this.state.images[currentReviewId].url}}/>
           </TouchableOpacity>
           <Modal
             animationType='slide'
@@ -417,7 +412,7 @@ class Details extends Component {
                 <Pressable style={styles.closeModal} onPress={() => this.setModalVisible(false)}>
                   <Text style={styles.closeModalBtn}>Close X</Text>
                 </Pressable>
-                <Image style={{width: 350, height: 350, borderWidth: 1, borderColor: 'black'}} source={{uri: this.state.images[currentReviewId].url}}/>
+                <Image style={styles.imgFull} source={{uri: this.state.images[currentReviewId].url}}/>
               </View>
             </View>
           </Modal>
@@ -437,7 +432,7 @@ class Details extends Component {
         <Image 
           key = {i}
           style = { ratingType }
-          source = { ( i <= value ) ? require(starActive) : require(starBlank) } />
+          source = { ( i <= Math.round(value) ) ? require(starActive) : require(starBlank) } />
       );
     }
 
@@ -467,7 +462,7 @@ class Details extends Component {
       )
     } else {
       return (
-        <View style={styles.scrollContainer}>
+        <View style={GlobalStyles.scrollContainer}>
           <ImageBackground source={{uri: this.state.details.photo_path}} style={styles.image}>
             <View style={styles.headerView}>
               <Text style={styles.header}>{this.state.details.location_name}</Text>
@@ -529,11 +524,6 @@ class Details extends Component {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    backgroundColor: '#FFA5AD',
-    flexDirection: 'column',
-    flex: 1
-  },
   image: {
     resizeMode: 'cover',
     justifyContent: 'center',
@@ -563,35 +553,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 3
   }, 
-  favLocations: {
-    fontWeight: 'bold',
-    fontSize: 25,
-    color: 'red'
-  },
-  noFavLocations: {
-    fontSize: 20,
-    color: 'white'
-  },
-  itemContainer: {
-    padding: 10,
-    borderColor: 'red',
-    borderBottomWidth: 2,
-    flexDirection: 'row'
-  },
-  locationName: {
-    fontSize: 20,
-    color: 'red',
-    fontFamily: 'Courier New',
-    fontWeight: 'bold',
-    flex: 3
-  },
-  locationDistance: {
-    color: 'red',
-    flex: 1,
-    paddingTop: 10,
-    fontFamily: 'Courier New',
-    fontWeight: 'bold'
-  },
   ratingRow: {
     backgroundColor:'rgba(255, 165, 173,0.75)',
     flexDirection: 'row',
@@ -707,6 +668,18 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 25,
     opacity: 1
+  },
+  imgThumb: {
+    width: 100,
+    height: 75,
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  imgFull: {
+    width: 350,
+    height: 350,
+    borderWidth: 1,
+    borderColor: 'black'
   }
 })
 

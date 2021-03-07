@@ -49,12 +49,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1
   },
-  button: {
-    textAlign: 'center',
-    color: 'red',
-    fontSize: 30,
-    backgroundColor: 'white'
-  },
   headerView: {
     flex: 2,
     textAlign: 'center',

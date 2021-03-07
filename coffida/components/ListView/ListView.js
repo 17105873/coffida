@@ -4,9 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import {Picker} from '@react-native-picker/picker'
 
 import Loading from '../Loading/Loading'
-
-let currentLat
-let currentLng
+import Helper from '../helpers/Helper'
+import GlobalStyles from '../helpers/style'
 
 class ListView extends Component {
   constructor (props) {
@@ -14,6 +13,8 @@ class ListView extends Component {
 
     this.state = {
       isLoading: true,
+      latitude: null,
+      longitude: null,
       sortBy: 'avg_overall_rating',
       listData: []
     }
@@ -37,8 +38,10 @@ class ListView extends Component {
       this.props.navigation.navigate('Login')
     }
 
-    currentLat = await AsyncStorage.getItem('@latitude')
-    currentLng = await AsyncStorage.getItem('@longitude')
+    this.setState({
+      latitude: parseFloat(await AsyncStorage.getItem('@latitude')),
+      longitude: parseFloat(await AsyncStorage.getItem('@longitude'))
+    })
   }
 
   getData = async () => {
@@ -64,7 +67,7 @@ class ListView extends Component {
       //Sorting Data By Average Highest Overall Review
       this.setState({
         isLoading: false,
-        listData: this.sortList(responseJson, this.state.sortBy)
+        listData: Helper.sortList(responseJson, this.state.sortBy)
       })
     })
     .catch((error) => {
@@ -73,41 +76,13 @@ class ListView extends Component {
     })
   }
 
-  sortList(responseJson, sortBy) {
-    var data = responseJson
-    data = data.sort(this.sortBy(sortBy))
-    return data
-  }
-
-  sortBy(prop){
-    return function(a,b){
-       if (a[prop] < b[prop]){
-          return 1;
-       } else if(a[prop] > b[prop]){
-          return -1;
-       }
-       return 0;
-    }
-  }
-
   activeSort(sortBy) {
 
     if (sortBy !== 'distance') {
       this.setState({ listData: this.state.listData.sort(this.sortBy(sortBy)), sortBy: sortBy })
     } else {
-      //
+      // TO DO
     }
-  }
-
-  //function to retrieve distance between 2 points (as the crow flies)
-  distance(lat, lon) {
-    var p = 0.017453292519943295;    // Math.PI / 180
-    var c = Math.cos;
-    var a = 0.5 - c((lat - currentLat) * p)/2 + 
-            c(currentLat * p) * c(lat * p) * 
-            (1 - c((lon - currentLng) * p))/2;
-  
-    return (12742 * Math.asin(Math.sqrt(a))).toFixed(2) // 2 * R; R = 6371 Radius of earth in km
   }
 
   render () {
@@ -119,7 +94,7 @@ class ListView extends Component {
       )
     } else {
       return (
-        <View style={styles.scrollContainer}>
+        <View style={GlobalStyles.scrollContainer}>
           <View>
             <Text style={styles.header}>Locations</Text>
             <View style={styles.sortContainer}>
@@ -147,11 +122,11 @@ class ListView extends Component {
                   >
                     <View style={styles.itemContainer}>
                       <View style={styles.mainDetails}>
-                        <Text style={styles.locationName}>{item.location_name}</Text>
-                        <Text style={styles.locationDistance}>{this.distance(item.latitude, item.longitude)} km</Text>
+                        <Text style={GlobalStyles.locationName}>{item.location_name}</Text>
+                        <Text style={GlobalStyles.locationDistance}>{Helper.calculateDistance(this.state.latitude, this.state.longitude, item.latitude, item.longitude)} km</Text>
                       </View>
                       <View style={styles.locationContainer}>
-                        <Text style={styles.locationTown}>{item.location_town}</Text>
+                        <Text style={GlobalStyles.locationTown}>{item.location_town}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -167,11 +142,6 @@ class ListView extends Component {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    backgroundColor: '#FFA5AD',
-    flexDirection: 'column',
-    flex: 1
-  },
   itemContainer: {
     padding: 10,
     borderColor: 'red',
@@ -184,37 +154,11 @@ const styles = StyleSheet.create({
   locationContainer: {
     flex: 1
   },
-  locationName: {
-    fontSize: 20,
-    color: 'red',
-    fontFamily: 'Courier New',
-    fontWeight: 'bold',
-    flex: 3
-  },
-  locationDistance: {
-    color: 'red',
-    flex: 1,
-    paddingTop: 10,
-    fontFamily: 'Courier New',
-    fontWeight: 'bold'
-  },
-  locationTown: {
-    color: 'black',
-    flex: 1,
-    paddingTop: 5,
-    fontFamily: 'Courier New Bold'
-  },
   label: {
     color: 'red',
     fontWeight: 'bold',
     fontSize: 35,
     marginHorizontal: 10
-  },
-  headerView: {
-    backgroundColor:'rgba(0,0,0,0.75)',
-    textAlign: 'center',
-    justifyContent: 'center',
-    flex: 1
   },
   header: {
     color: 'white',

@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { CommonActions } from '@react-navigation/native'
 
 import Loading from '../Loading/Loading'
+import Helper from '../helpers/Helper'
+import GlobalStyles from '../helpers/style'
 
 class UserDetails extends Component {
   constructor (props) {
@@ -40,33 +42,22 @@ class UserDetails extends Component {
 
   getUserDetails = async () => {
 
-    const token = await AsyncStorage.getItem('@session_token')
-    const userId = await AsyncStorage.getItem('@user_id')
-
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': token
-      }
-    })
-    .then((response) => {
-      if(response.status === 200){
-        return response.json()
-      } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+    Helper.getUserDetails().then((responseJson) => {
+      if (responseJson == 'Login'){
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return
+      } else if (responseJson == 'Error') {
+        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        this.setState({
+          isLoading: false,
+          first_name: responseJson.first_name,
+          last_name: responseJson.last_name,
+          email: responseJson.email
+        })
       }
-    })
-    .then((responseJson) => {
-      this.setState({
-        isLoading: false,
-        first_name: responseJson.first_name,
-        last_name: responseJson.last_name,
-        email: responseJson.email
-      })
     })
     .catch((error) => {
       console.log(error);
