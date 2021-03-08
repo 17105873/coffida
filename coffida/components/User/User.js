@@ -112,10 +112,12 @@ class UserDetails extends Component {
     // Validation
     if (this.state.first_name == '') {
       ToastAndroid.show('Please Enter Forename', ToastAndroid.SHORT)
+      return
     }
 
     if (this.state.last_name == '') {
       ToastAndroid.show('Please Enter Surname', ToastAndroid.SHORT)
+      return
     }
 
     if (this.state.email === '') {
@@ -132,6 +134,7 @@ class UserDetails extends Component {
 
     if (this.state.password == '' || this.state.password.length < 5) {
       ToastAndroid.show('Please Enter Password', ToastAndroid.SHORT)
+      return
     }
 
     return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + userId, {
