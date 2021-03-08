@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   deletePhotoBtn: {
     margin: 5,
-    width: 140,
+    width: 150,
     height: 60
   }
 })
