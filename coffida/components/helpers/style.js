@@ -47,5 +47,19 @@ export default StyleSheet.create({
     flex: 1,
     paddingTop: 5,
     fontFamily: 'Courier New Bold'
+  },
+  loadingScrollContainer: {
+    backgroundColor: '#FFA5AD',
+    flexDirection: 'column',
+    flex: 1
+  },
+  loadingHeaderView: {
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    textAlign: 'center',
+    justifyContent: 'center',
+    flex: 1
+  },
+  loadingHeader: {
+    opacity: 1
   }
 })

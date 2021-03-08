@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import { Text, TextInput, View, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
+
+import GlobalStyles from '../Helpers/Style'
 
 class SignUp extends Component {
   constructor (props) {
@@ -13,7 +16,8 @@ class SignUp extends Component {
     }
   }
 
-  signUp () {
+  signUp = async () => {
+  
     // Validation
     if (this.state.first_name === '') {
       ToastAndroid.show('Please Enter Forename', ToastAndroid.SHORT)
@@ -28,6 +32,13 @@ class SignUp extends Component {
     if (this.state.email === '') {
       ToastAndroid.show('Please Enter Email Address', ToastAndroid.SHORT)
       return
+    } else {
+      const regEx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+
+      if(!regEx.test(this.state.email)) {
+        ToastAndroid.show('Please Enter Valid Email Address', ToastAndroid.SHORT)
+        return
+      }
     }
 
     if (this.state.password === '' || this.state.password.length < 5) {
@@ -47,13 +58,16 @@ class SignUp extends Component {
           return response.json()
         } else if (response.status === 400) {
           ToastAndroid.show('Ivalid Credentials. Please Try Again', ToastAndroid.SHORT)
+          return null
         } else {
           ToastAndroid.show('An Error Occured. Please Try Again', ToastAndroid.SHORT)
+          return null
         }
       })
       .then((responseJson) => {
         if (responseJson !== null) {
           console.log(responseJson)
+          ToastAndroid.show('Sign Up Successful', ToastAndroid.SHORT)
           this.props.navigation.navigate('Login')
         }
       })
@@ -85,11 +99,11 @@ class SignUp extends Component {
           <Text style={styles.label}>Password:</Text>
           <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input} onChangeText={(password) => this.setState({ password })} value={this.state.password} secureTextEntry />
         </View>
-        <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>
+        <View style={[GlobalStyles.btnContainer, styles.btnContainer]}>
+          <TouchableOpacity style={[GlobalStyles.submitBtn, styles.submitBtn]} onPress={() => this.props.navigation.navigate('Index')}>
             <Text style={styles.submitBtnTxt}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.submitBtn} onPress={() => this.signUp()}>
+          <TouchableOpacity style={[GlobalStyles.submitBtn, styles.submitBtn]} onPress={() => this.signUp()}>
             <Text style={styles.submitBtnTxt}>Sign Up</Text>
           </TouchableOpacity>
         </View>
@@ -132,17 +146,11 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   btnContainer: {
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center',
     marginTop: 20
   },
   submitBtn: {
     padding: 10,
-    borderWidth: 2,
-    borderColor: 'black',
-    backgroundColor: 'red',
-    margin: 10
+    borderWidth: 2
   },
   submitBtnTxt: {
     fontSize: 25,

@@ -3,9 +3,9 @@ import { Text, View, FlatList, TouchableOpacity, ToastAndroid, Image, StyleSheet
 import AsyncStorage from '@react-native-community/async-storage'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import Loading from '../Loading/Loading'
+import Loading from '../Helpers/Loading'
 import Helper from '../Helpers/Helper'
-import GlobalStyles from '../Helpers/style'
+import GlobalStyles from '../Helpers/Style'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -31,7 +31,7 @@ class Details extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
 
       this.getDetails(false)
@@ -46,56 +46,62 @@ class Details extends Component {
 
   checkLoggedIn = async () => {
     asyncToken = await AsyncStorage.getItem('@session_token')
-    
+
     if (asyncToken == null) {
       this.props.navigation.navigate('Login')
     }
   }
 
+  // Get Location Details
   getDetails = async (blnUpdate) => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId, {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId, {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'X-Authorization': asyncToken
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response.json()
       } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return null
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('There Was An Error, Please Try Again', ToastAndroid.SHORT)
+        return null
       }
     })
     .then((responseJson) => {
-      if (blnUpdate == false) {
-        this.initialiseImage(responseJson)
+      if (responseJson !== null) {
+        if (blnUpdate == false) {
+          this.initialiseImage(responseJson)
+        }
+        this.initialiseLikeCount(responseJson)
+        this.setState({
+          locationName: responseJson.location_name,
+          details: responseJson
+        })
       }
-      this.initialiseLikeCount(responseJson)
-      this.setState({
-        locationName: responseJson.location_name,
-        details: responseJson
-      })
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
+  // Get Users Details For Initlailising Favourite, Like & Edit/Delete Buttons 
   getUserSpecific = async() => {
 
     Helper.getUserDetails().then((responseJson) => {
-      if (responseJson == 'Login'){
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+      if (responseJson == 'Login') {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
         return
       } else if (responseJson == 'Error') {
-        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
         return
       } else {
         this.initialiseBtn(responseJson)
@@ -106,11 +112,12 @@ class Details extends Component {
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
+  // Favourite / UnFavourite Location
   favouriteLocation = async ({favLoc}) => {
 
     var action
@@ -121,93 +128,93 @@ class Details extends Component {
       action = 'delete'
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/favourite", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/favourite', {
       method: action,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'X-Authorization': asyncToken
       },
       body: {
         'loc_id': this.state.locationId
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
+        this.setState({
+          favLocation: favLoc ? true : false
+        })
         return
       } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('There Was An Error, Please Try Again', ToastAndroid.SHORT)
+        return
       }
     })
-    .then(() => {
-      this.setState({
-        favLocation: favLoc ? true : false
-      })
-    })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
   reviewAction = async(reviewId, method) => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/like", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + reviewId + '/like', {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'X-Authorization': asyncToken
       }
     })
     .then((response) => {
-      if(response.status === 200){
-        return
-      } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
-        this.props.navigation.navigate('Login')
-      } else {
-        throw "Something went wrong. Please try again";
-      }
-    })
-    .then(() => {
+      if(response.status === 200) {
         this.state.likeButton[reviewId] = ( method == 'post' ) ? true : false
         this.state.likeCount[reviewId] = (method == 'post') ? (this.state.likeCount[reviewId] + 1) : (this.state.likeCount[reviewId] - 1)
         this.setState({
           isLoading: false
-        })
+        })        
+        return
+      } else if (response.status === 401) {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
+        return
+      } else {
+        ToastAndroid.show('There Was An Error, Please Try Again', ToastAndroid.SHORT)
+        return
+      }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
   deleteReview = async(reviewId) => {
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId, {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + reviewId, {
       method: 'delete',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
+        'X-Authorization': asyncToken
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
+        this.getDetails(true)
         return
       } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('There Was An Error, Please Try Again', ToastAndroid.SHORT)
+        return
       }
     })
-    .then(() => {
-      this.getDetails(true)
-    })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
@@ -218,7 +225,7 @@ class Details extends Component {
     try{
       responseJson.location_reviews.map(async(item) => {
 
-        return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + item.review_id + "/photo", {
+        return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + item.review_id + '/photo', {
           method: 'get',
           headers: {
             'Content-Type': 'image/jpeg',
@@ -226,17 +233,17 @@ class Details extends Component {
           }
         })
         .then((response) => {
-          if(response.status === 200){
+          if(response.status === 200) {
             return response
           } else if (response.status === 401) {
-            ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+            ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
             this.props.navigation.navigate('Login')
-            return
+            return null
           } else if (response.status === 404) {
-            //No Image For Review
+            // No Image For Review
             return null
           } else {
-            ToastAndroid.show("Something went wrong. Please try again", ToastAndroid.SHORT)
+            ToastAndroid.show('Something went wrong. Please try again', ToastAndroid.SHORT)
             return null
           }
         })
@@ -249,8 +256,8 @@ class Details extends Component {
           return
         })
         .catch((error) => {
-          console.log(error);
-          ToastAndroid.show(error, ToastAndroid.SHORT);
+          console.log(error)
+          ToastAndroid.show(error, ToastAndroid.SHORT)
         })
 
       })
@@ -337,12 +344,14 @@ class Details extends Component {
 
   renderLikeButton(item) {
 
+    // Show Like/Unlike Buttons
+
     if(!this.state.likeButton[item.review_id]) {
       return(
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => {
-            this.reviewAction(item.review_id, 'post');
+            this.reviewAction(item.review_id, 'post')
           }}>
           <Text style={styles.actionBtnTxt}>Like</Text>
         </TouchableOpacity>
@@ -352,7 +361,7 @@ class Details extends Component {
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => {
-            this.reviewAction(item.review_id, 'delete');
+            this.reviewAction(item.review_id, 'delete')
           }}>
           <Text style={styles.actionBtnTxt}>UnLike</Text>
         </TouchableOpacity>
@@ -362,7 +371,9 @@ class Details extends Component {
 
   renderDeleteButton(currentItem) {
 
-    if(this.state.actionButton[currentItem.review_id]){
+    // Show Edit / Delete Buttons If User Created This Review
+
+    if(this.state.actionButton[currentItem.review_id]) {
       return(
         <>
           <TouchableOpacity
@@ -372,14 +383,14 @@ class Details extends Component {
                 reviewData: currentItem,
                 locationId: this.state.details.location_id,
                 locationName: this.state.details.location_name
-              });
+              })
             }}>
             <Text style={styles.actionBtnTxt}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => {
-              this.deleteReview(currentItem.review_id);
+              this.deleteReview(currentItem.review_id)
             }}>
             <Text style={styles.actionBtnTxt}>Delete</Text>
           </TouchableOpacity>
@@ -403,7 +414,7 @@ class Details extends Component {
             transparent={true}
             visible={this.state.modalVisible}
             onRequestClose={() => {
-              this.setModalVisible(false);
+              this.setModalVisible(false)
             }}
           >
             <View style={styles.centeredView}>
@@ -423,7 +434,10 @@ class Details extends Component {
   }
 
   renderRating(value, ratingType) {
-    let ratingRow = [];
+
+    // Return Star Ratings
+
+    let ratingRow = []
  
     for(var i = 1; i <= 5; i++ )
     {
@@ -432,14 +446,14 @@ class Details extends Component {
           key = {i}
           style = { ratingType }
           source = { ( i <= Math.round(value) ) ? require(starActive) : require(starBlank) } />
-      );
+      )
     }
 
-    return ratingRow;
+    return ratingRow
   }
 
   setModalVisible = (visible) => {
-    this.setState({ modalVisible: visible });
+    this.setState({ modalVisible: visible })
   }
 
   render () {
@@ -482,7 +496,7 @@ class Details extends Component {
                   this.props.navigation.navigate('Review', {
                     locationId: this.state.locationId,
                     locationName: this.state.locationName
-                  });
+                  })
                 }}
               >
                 <Text style={GlobalStyles.submitBtnTxt}>Review</Text>
@@ -560,7 +574,7 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   ratingRowLoc: {
-    backgroundColor:'rgba(255, 165, 173,0.75)',
+    backgroundColor:'rgba(255, 165, 173,0.9)',
     flexDirection: 'row',
     justifyContent: 'center'
   },
@@ -622,8 +636,8 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22
   },
   modalView: {

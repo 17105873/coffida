@@ -1,39 +1,15 @@
 import 'react-native-gesture-handler'
 
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, ImageBackground, ScrollView, ToastAndroid, PermissionsAndroid, FlatList, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, ImageBackground, ToastAndroid, FlatList, TouchableOpacity } from 'react-native'
 import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import Loading from './Loading/Loading'
+import Loading from './Helpers/Loading'
 import Helper from './Helpers/Helper'
-import GlobalStyles from './Helpers/style'
+import GlobalStyles from './Helpers/Style'
 
 import backgroundImg from '../resources/img/home_bg2.png'
-
-async function requestLocationPermission() {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Location Permission',
-        message: 'This app requires access to your location.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      },
-    );
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('You can access location');
-      return true;
-    } else {
-      console.log('Location permission denied');
-      return false;
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-}
 
 class Home extends Component {
   constructor (props) {
@@ -51,7 +27,7 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
 
       this.getUserDetails()
@@ -74,40 +50,47 @@ class Home extends Component {
   getUserDetails = async () => {
 
     Helper.getUserDetails().then((responseJson) => {
-      if (responseJson == 'Login'){
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+      if (responseJson == 'Login') {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
         return
       } else if (responseJson == 'Error') {
-        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
         return
       } else {
         this.setState({
           isLoading: false,
-          userData: Helper.sortList(responseJson.favourite_locations, "avg_overall_rating"),
+          userData: Helper.sortList(responseJson.favourite_locations, 'avg_overall_rating'),
           forename: responseJson.first_name,
           surname: responseJson.last_name
         })
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
-  getCurrentLocation(){
+  getCurrentLocation() {
 
-    if(!this.state.locationPermission)
-        this.state.locationPermission = requestLocationPermission()
+    if(!this.state.locationPermission) {
+      Helper.requestLocationPermission().then((response) => {
+        this.state.locationPermission = response
+      })
+      .catch((error) => {
+        console.log(error)
+        ToastAndroid.show(error, ToastAndroid.SHORT)
+      })
+    }
 
     GeoLocation.getCurrentPosition(
       async(position) => {
         const location = JSON.stringify(position)
         const coords = JSON.parse(location)
 
-        await AsyncStorage.setItem('@latitude', coords.coords.latitude.toString());
-        await AsyncStorage.setItem('@longitude', coords.coords.longitude.toString());
+        await AsyncStorage.setItem('@latitude', coords.coords.latitude.toString())
+        await AsyncStorage.setItem('@longitude', coords.coords.longitude.toString())
 
         this.setState({
           latitude: coords.coords.latitude.toString(),
@@ -115,7 +98,7 @@ class Home extends Component {
         })
       },
       (error) => {
-        ToastAndroid.show(error, ToastAndroid.SHORT);
+        ToastAndroid.show(error, ToastAndroid.SHORT)
       },
       {
         enableHighAccuracy: true,
@@ -137,7 +120,7 @@ class Home extends Component {
                 onPress={() => {
                   this.props.navigation.navigate('Details', {
                     locationId: item.location_id
-                  });
+                  })
                 }}
               >
                 <View style={styles.itemContainer}>
@@ -163,7 +146,6 @@ class Home extends Component {
       )
     }
   }
-
 
   render () {
     if (this.state.isLoading == true)

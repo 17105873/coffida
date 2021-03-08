@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
+import { Text, TextInput, View, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import { CommonActions } from '@react-navigation/native'
 
-import Loading from '../Loading/Loading'
+import Loading from '../Helpers/Loading'
 import Helper from '../Helpers/Helper'
-import GlobalStyles from '../Helpers/style'
+import GlobalStyles from '../Helpers/Style'
 
 class UserDetails extends Component {
   constructor (props) {
@@ -21,7 +21,7 @@ class UserDetails extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
 
       this.getUserDetails()
@@ -43,12 +43,12 @@ class UserDetails extends Component {
   getUserDetails = async () => {
 
     Helper.getUserDetails().then((responseJson) => {
-      if (responseJson == 'Login'){
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+      if (responseJson == 'Login') {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
         return
       } else if (responseJson == 'Error') {
-        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
         return
       } else {
         this.setState({
@@ -60,8 +60,8 @@ class UserDetails extends Component {
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
@@ -78,27 +78,30 @@ class UserDetails extends Component {
         'X-Authorization': token
       }
     })
-      .then(async (response) => {
-        if (response.status === 200) {
-          await AsyncStorage.clear();
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 1,
-              routes: [
-                { name: 'Index' },
-              ],
-            })
-          );
-        } else if (response.status === 401) {
-          throw 'Unathorized'
-        } else {
-          throw 'Something went wrong. Please try again'
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-        ToastAndroid.show(error, ToastAndroid.SHORT)
-      })
+    .then(async (response) => {
+      if (response.status === 200) {
+        await AsyncStorage.clear()
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Index' },
+            ],
+          })
+        )
+      } else if (response.status === 401) {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
+        return
+      } else {
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
+        return
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
+    })
   }
 
   updateDetails = async () => {
@@ -115,8 +118,16 @@ class UserDetails extends Component {
       ToastAndroid.show('Please Enter Surname', ToastAndroid.SHORT)
     }
 
-    if (this.state.email == '') {
+    if (this.state.email === '') {
       ToastAndroid.show('Please Enter Email Address', ToastAndroid.SHORT)
+      return
+    } else {
+      const regEx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+
+      if(!regEx.test(this.state.email)) {
+        ToastAndroid.show('Please Enter Valid Email Address', ToastAndroid.SHORT)
+        return
+      }
     }
 
     if (this.state.password == '' || this.state.password.length < 5) {
@@ -131,22 +142,23 @@ class UserDetails extends Component {
       },
       body: JSON.stringify(this.state)
     })
-      .then((response) => {
-        if (response.status === 200) {
-          return
-        } else if (response.status === 400) {
-          throw 'Invalid Credentials'
-        } else {
-          throw 'Something went wrong. Please try again'
-        }
-      })
-      .then(() => {
-        console.log("updated user") //Show Success Message
-      })
-      .catch((error) => {
-        console.log(error)
-        ToastAndroid.show(error, ToastAndroid.SHORT)
-      })
+    .then((response) => {
+      if (response.status === 200) {
+        ToastAndroid.show('Successfully Updated Details', ToastAndroid.SHORT)
+        return
+      } else if (response.status === 401) {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
+        return
+      } else {
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
+        return
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
+    })
   }
 
   render () {

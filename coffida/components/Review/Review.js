@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet } from 'react-native'
+import { Text, TextInput, View, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import Loading from '../Loading/Loading'
-import Helper from '../Helpers/Helper'
-import GlobalStyles from '../Helpers/style'
+import Loading from '../Helpers/Loading'
+import GlobalStyles from '../Helpers/Style'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -33,7 +32,7 @@ class Review extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
       this.checkUpdate()
     })
@@ -53,7 +52,7 @@ class Review extends Component {
 
   checkUpdate() {
 
-    //Instead Of Making Another Database Call Values Are Passed Through On Route
+    // Instead Of Making Another Database Call, Values Are Passed Through On Route
     if(this.props.route.params.reviewData !== undefined) {
       this.setState({
         overall_rating: this.props.route.params.reviewData.overall_rating,
@@ -73,41 +72,46 @@ class Review extends Component {
 
   submitReview = async(reviewType) => {
 
-    var endPoint;
-    var method;
+    let endPoint
+    let method
 
     if (reviewType =='Submit') {
-      endPoint = "http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review"
+      endPoint = 'http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review'
       method = 'post'
     } else {
-      endPoint = "http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId
+      endPoint = 'http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + this.state.reviewId
       method = 'patch'
     }
 
     //Validation TO DO
-    if (this.state.price_rating == 0){
-      ToastAndroid.show("Please Select Price Rating", ToastAndroid.SHORT);
+    if (this.state.price_rating == 0) {
+      ToastAndroid.show('Please Select Price Rating', ToastAndroid.SHORT)
       return
     }
 
-    if (this.state.quality_rating == 0){
-      ToastAndroid.show("Please Select Quality Rating", ToastAndroid.SHORT);
+    if (this.state.quality_rating == 0) {
+      ToastAndroid.show('Please Select Quality Rating', ToastAndroid.SHORT)
       return
     }
 
-    if (this.state.clenliness_rating == 0){
-      ToastAndroid.show("Please Select Cleanliness Rating", ToastAndroid.SHORT);
+    if (this.state.clenliness_rating == 0) {
+      ToastAndroid.show('Please Select Cleanliness Rating', ToastAndroid.SHORT)
       return
     }
 
-    if (this.state.review_body == ''){
-      ToastAndroid.show("Please Enter Review", ToastAndroid.SHORT);
+    if (this.state.review_body == '') {
+      ToastAndroid.show('Please Enter Review', ToastAndroid.SHORT)
+      return
+    } else if (this.state.review_body.length > 500) {
+      ToastAndroid.show('Review Cannot Be Greater Than 500 Characters', ToastAndroid.SHORT)
       return
     } else {
+
+      // Profanity Filter - Not allowing users to mention cakes, tea or pastries
       const regEx = /(cake|tea|pastr)/gi
 
-      if(regEx.test(this.state.review_body)){
-        ToastAndroid.show("Review Cannot Mention Cakes, Tea or Pastries", ToastAndroid.SHORT);
+      if(regEx.test(this.state.review_body)) {
+        ToastAndroid.show('Review Cannot Mention Cakes, Tea or Pastries', ToastAndroid.SHORT)
         return
       }
     }
@@ -121,7 +125,7 @@ class Review extends Component {
       body: JSON.stringify(this.state)
     })
     .then((response) => {
-      if(response.status === 201){
+      if(response.status === 201) {
         //New Review Created Then Retrieve New Review Id
         this.getLatestReview()
         return
@@ -129,48 +133,52 @@ class Review extends Component {
         //If Update Then No Need To Retrieve New id
         this.uploadPhoto(this.state.reviewId)
         return
-      } else if (response.status === 400) {
-        throw "Invalid Details";
+      } else if (response.status === 401) {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please try again', ToastAndroid.SHORT)
+        return
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
   uploadPhoto = async(reviewId) => {
+
+    // If No New Photo Then Return To Reviews Page
 
     if (this.state.newPhoto == false) {
       this.props.navigation.goBack()
       return
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + reviewId + "/photo", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + reviewId + '/photo', {
       method: 'post',
       headers: {
-        'Content-Type': "image/jpeg",
+        'Content-Type': 'image/jpeg',
         'X-Authorization': asyncToken
       },
       body: this.state.photo
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
+        this.props.navigation.goBack()
         return
       } else if (response.status === 400) {
-        throw "Invalid Upload Type";
+        ToastAndroid.show('Invalid Upload Type', ToastAndroid.SHORT)
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please try again', ToastAndroid.SHORT)
+        return
       }
     })
-    .then(() => {
-      this.props.navigation.goBack()
-    })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
@@ -184,38 +192,44 @@ class Review extends Component {
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response.json()
       } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return null
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please try again', ToastAndroid.SHORT)
+        return null
       }
     })
     .then((responseJson) => {
 
-      //Get Id of Review Just Inserted
-      let newReviewId;
+      if (responseJson !== null) {
 
-      responseJson.reviews.map((userReview) => {
-        if (newReviewId == null || parseInt(userReview.review.review_id) > newReviewId) {
-          newReviewId = userReview.review.review_id
-        }
-      })
+        //Get Id of Review Just Inserted
+        let newReviewId
 
-      this.uploadPhoto(newReviewId)
+        responseJson.reviews.map((userReview) => {
+          if (newReviewId == null || parseInt(userReview.review.review_id) > newReviewId) {
+            newReviewId = userReview.review.review_id
+          }
+        })
+
+        this.uploadPhoto(newReviewId)
+
+      }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
 
   }
 
   getImage = async(reviewId) => {
 
-    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + "/review/" + reviewId + "/photo", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + reviewId + '/photo', {
       method: 'get',
       headers: {
         'Content-Type': 'image/jpeg',
@@ -223,16 +237,18 @@ class Review extends Component {
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response
       } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return null
       } else if (response.status === 404) {
         //No Image For Review
         return null
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please try again', ToastAndroid.SHORT)
+        return null
       }
     })
     .then((response) => {
@@ -241,8 +257,8 @@ class Review extends Component {
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
 
   }
@@ -255,40 +271,41 @@ class Review extends Component {
       return
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + this.state.locationId + "/review/" + this.state.reviewId + "/photo", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/location/' + this.state.locationId + '/review/' + this.state.reviewId + '/photo', {
       method: 'delete',
       headers: {
         'X-Authorization': asyncToken
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
+        this.setState({ photo: null })
         return
-      } else if (response.status === 400) {
-        throw "Invalid Upload Type";
+      } else if (response.status === 401) {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
+        this.props.navigation.navigate('Login')
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please try again', ToastAndroid.SHORT)
+        return
       }
     })
-    .then(() => {
-      this.setState({ photo: null })
-    })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
 
   }
 
   UpdateRating(key, rating_type)
   {
-    this.setState({ [rating_type]: key });
+    this.setState({ [rating_type]: key })
   }
 
   renderRating(ratingType) {
-    let ratingRow = [];
+    let ratingRow = []
  
-    for( var i = 1; i <= 5; i++ )
+    for(var i = 1; i <= 5; i++)
     {
       ratingRow.push(
         <TouchableOpacity
@@ -298,10 +315,10 @@ class Review extends Component {
               style = { styles.StarImage }
               source = { ( i <= this.state[ratingType] ) ? require(starActive) : require(starBlank) } />
         </TouchableOpacity>
-      );
+      )
     }
 
-    return ratingRow;
+    return ratingRow
   }
 
   imageControl() {
@@ -328,8 +345,8 @@ class Review extends Component {
   }
 
   setPhoto = data => {
-    this.setState({photo: data, newPhoto: true});
-  };
+    this.setState({photo: data, newPhoto: true})
+  }
 
   render () {
 
@@ -366,7 +383,7 @@ class Review extends Component {
                 onPress={() => {
                   this.props.navigation.navigate('TakePicture', {
                     setPhoto: this.setPhoto
-                  });
+                  })
                 }}
               >
                 <Text style={GlobalStyles.submitBtnTxt}>Take Photo</Text>
@@ -453,6 +470,5 @@ const styles = StyleSheet.create({
     height: 60
   }
 })
-
 
 export default Review

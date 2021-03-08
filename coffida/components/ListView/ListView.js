@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet, Image } from 'react-native'
+import { Text, View, FlatList, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import {Picker} from '@react-native-picker/picker'
 
-import Loading from '../Loading/Loading'
+import Loading from '../Helpers/Loading'
 import Helper from '../Helpers/Helper'
-import GlobalStyles from '../Helpers/style'
+import GlobalStyles from '../Helpers/Style'
 
 class ListView extends Component {
   constructor (props) {
@@ -21,7 +21,7 @@ class ListView extends Component {
 
   }
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
       this.getData()
     })
@@ -43,15 +43,16 @@ class ListView extends Component {
     })
   }
 
+  // Get All Locations
   getData = async () => {
 
     Helper.getLocations().then((responseJson) => {
-      if (responseJson == 'Login'){
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+      if (responseJson == 'Login') {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
         return
       } else if (responseJson == 'Error') {
-        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
         return
       } else {
         this.setState({
@@ -61,19 +62,14 @@ class ListView extends Component {
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
 
   }
 
   activeSort(sortBy) {
-
-    if (sortBy !== 'distance') {
-      this.setState({ listData: this.state.listData.sort(this.sortBy(sortBy)), sortBy: sortBy })
-    } else {
-      // TO DO
-    }
+    this.setState({ listData: this.state.listData.sort(Helper.sortBy(sortBy)), sortBy: sortBy })
   }
 
   render () {
@@ -92,12 +88,12 @@ class ListView extends Component {
               <Text style={styles.sortLabel}>Sort By:</Text>
               <Picker
                 selectedValue={this.state.sortBy}
-                style={{ height: 50, width: 150, color: 'white', fontWeight: 'bold' }}
+                style={styles.pickerStyle}
                 onValueChange={(itemValue) => this.activeSort(itemValue)}
               >
-                <Picker.Item label="Rating" value="avg_overall_rating" />
-                <Picker.Item label="Price" value="avg_price_rating" />
-                <Picker.Item label="Distance" value="distance" />
+                <Picker.Item label='Overall Rating' value='avg_overall_rating' />
+                <Picker.Item label='Best Price' value='avg_price_rating' />
+                <Picker.Item label='Best Quality' value='avg_quality_rating' />
               </Picker>
             </View>
             <FlatList 
@@ -108,7 +104,7 @@ class ListView extends Component {
                     onPress={() => {
                       this.props.navigation.navigate('Details', {
                         locationId: item.location_id
-                      });
+                      })
                     }}
                   >
                     <View style={styles.itemContainer}>
@@ -169,6 +165,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     padding: 10
+  },
+  pickerStyle: {
+    height: 50,
+    width: 150,
+    color: 'white',
+    fontWeight: 'bold'
   }
 })
 

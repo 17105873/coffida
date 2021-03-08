@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { Text, View, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
+import { Text, View, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import { RNCamera } from 'react-native-camera'
 import { LogBox } from 'react-native'
 
-import GlobalStyles from '../Helpers/style'
+import GlobalStyles from '../Helpers/Style'
 
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state'])
 
@@ -18,7 +18,7 @@ class TakePicture extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
     })
   }
@@ -35,12 +35,18 @@ class TakePicture extends Component {
   }
 
   takePicture = async() => {
+
+    // Take Picture and Return To Review Screen Updating State with setPhoto Function
+
     if (this.camera) {
       const options = {quality: 0.5, base64: true}
-      const data = await this.camera.takePictureAsync(options);
-      const { navigation, route } = this.props;
-      navigation.goBack();
-      route.params.setPhoto(data);
+      const data = await this.camera.takePictureAsync(options)
+      const { navigation, route } = this.props
+      navigation.goBack()
+      route.params.setPhoto(data)
+    } else {
+      ToastAndroid.show('An Error Occured, Please Try Again', ToastAndroid.SHORT)
+      return
     }
   }
 
@@ -50,7 +56,7 @@ class TakePicture extends Component {
       <View style={StyleSheet.absoluteFillObject}>
         <RNCamera
           ref={ref => {
-            this.camera = ref;
+            this.camera = ref
           }}
           style={styles.camera}
           captureAudio={false}

@@ -1,9 +1,9 @@
-import { ToastAndroid } from 'react-native'
+import { PermissionsAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
 class Helper {
   // function to retrieve distance between 2 points (as the crow flies)
-  calculateDistance (startLat, startLng, endLat, endLng) {
+  calculateDistance(startLat, startLng, endLat, endLng) {
     if (startLat == null || startLng == null) {
       return 0
     }
@@ -30,7 +30,7 @@ class Helper {
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response.json()
       } else if (response.status === 401) {
         return 'Login'
@@ -42,7 +42,7 @@ class Helper {
 
   getLocations = async () => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/find", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/find', {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ class Helper {
       }
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response.json()
       } else if (response.status === 401) {
         return 'Login'
@@ -61,24 +61,47 @@ class Helper {
 
   }
 
+  requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message: 'This app requires access to your location.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can access location')
+        return true
+      } else {
+        console.log('Location permission denied')
+        return false
+      }
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+
   sortList(responseJson, sortBy) {
     var data = responseJson
     data = data.sort(this.sortBy(sortBy))
     return data
   }
 
-  sortBy(prop){
-    return function(a,b){
-       if (a[prop] < b[prop]){
-          return 1;
-       } else if(a[prop] > b[prop]){
-          return -1;
+  sortBy(prop) {
+    return function(a,b) {
+       if (a[prop] < b[prop]) {
+          return 1
+       } else if(a[prop] > b[prop]) {
+          return -1
        }
-       return 0;
+       return 0
     }
   }
 }
-
 
 const helper = new Helper()
 export default helper

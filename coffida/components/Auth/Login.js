@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
+import { Text, TextInput, View, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import GlobalStyles from '../Helpers/style'
+import GlobalStyles from '../Helpers/Style'
 
 class Login extends Component{
-  constructor(props){
-    super(props);
+  constructor(props) {
+    super(props)
 
     this.state = {
       email: '',
@@ -19,17 +19,17 @@ class Login extends Component{
     const navigation = this.props.navigation
 
     //Validation TO DO
-    if (this.state.email == ""){
-      ToastAndroid.show("Please Enter Email Address", ToastAndroid.SHORT);
+    if (this.state.email == '') {
+      ToastAndroid.show('Please Enter Email Address', ToastAndroid.SHORT)
       return
     }
 
-    if (this.state.password == ""){
-      ToastAndroid.show("Please Enter Password", ToastAndroid.SHORT);
+    if (this.state.password == '') {
+      ToastAndroid.show('Please Enter Password', ToastAndroid.SHORT)
       return
     }
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/user/login", {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/login', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -37,35 +37,40 @@ class Login extends Component{
       body: JSON.stringify(this.state)
     })
     .then((response) => {
-      if(response.status === 200){
+      if(response.status === 200) {
         return response.json()
       } else if (response.status === 400) {
-        throw "Invalid Email Or Password";
+        ToastAndroid.show('Invalid Email Or Password', ToastAndroid.SHORT)
+        return null
       } else {
-        throw "Something went wrong. Please try again";
+        ToastAndroid.show('An Error Occured. Please Try Again', ToastAndroid.SHORT)
+        return null
       }
     })
     .then(async (responseJson) => {
-      console.log(responseJson);
-      await AsyncStorage.setItem('@session_token', responseJson.token);
-      await AsyncStorage.setItem('@user_id', responseJson.id.toString());
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'HomeIndex'
-          },
-        ],
-      })
+      if (responseJson !== null)
+      {
+        console.log(responseJson)
+        await AsyncStorage.setItem('@session_token', responseJson.token)
+        await AsyncStorage.setItem('@user_id', responseJson.id.toString())
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'HomeIndex'
+            },
+          ],
+        })
+      }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
 
   }
 
-  render(){
+  render() {
 
     return(
       <ScrollView style={styles.scrollContainer}>
@@ -81,7 +86,7 @@ class Login extends Component{
           <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input}  onChangeText={(password) => this.setState({password})} value={this.state.password} secureTextEntry />
         </View>
         <View style={[GlobalStyles.btnContainer, styles.btnContainer]}>
-          <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity style={styles.submitBtn} onPress={() => this.props.navigation.navigate('Index')}>
             <Text style={styles.submitBtnTxt}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.submitBtn} onPress={() => this.logIn()}>
@@ -89,7 +94,7 @@ class Login extends Component{
           </TouchableOpacity>
         </View>
       </ScrollView>
-    );
+    )
   }
 }
 
@@ -143,4 +148,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default Login;
+export default Login

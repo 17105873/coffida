@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity, ToastAndroid } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps'
 
-import Loading from '../Loading/Loading'
+import Loading from '../Helpers/Loading'
 import Helper from '../Helpers/Helper'
+import GlobalStyles from '../Helpers/Style'
 
 import iconMarker from '../../resources/img/marker_sm.png'
 import iconMarkerLocation from '../../resources/img/marker_sm_blue.png'
@@ -24,7 +25,7 @@ class Map extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener("focus", () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn()
       this.setCurrentLocation()
       this.getData()
@@ -56,14 +57,15 @@ class Map extends Component {
     })
   }
 
+  // Get Locations From Find Endpoint
   getData = async () => {
     Helper.getLocations().then((responseJson) => {
-      if (responseJson == 'Login'){
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
+      if (responseJson == 'Login') {
+        ToastAndroid.show('You\'re not Logged In', ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
         return
       } else if (responseJson == 'Error') {
-        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        ToastAndroid.show('There Was An Error. Please Try Again', ToastAndroid.SHORT)
         return
       } else {
         this.setState({
@@ -73,8 +75,8 @@ class Map extends Component {
       }
     })
     .catch((error) => {
-      console.log(error);
-      ToastAndroid.show(error, ToastAndroid.SHORT);
+      console.log(error)
+      ToastAndroid.show(error, ToastAndroid.SHORT)
     })
   }
 
@@ -90,7 +92,7 @@ class Map extends Component {
                 onPress={() => {
                   this.props.navigation.navigate('Details', {
                     locationId: this.state.locationDetail.location_id
-                  });
+                  })
                 }}
               >
                 <View>
@@ -153,8 +155,8 @@ class Map extends Component {
                 icon={iconMarkerLocation}
                 coordinate={{latitude: this.state.latitude,
                 longitude: this.state.longitude}}
-                title={"Location"}
-                description={"Current Location"}
+                title={'Location'}
+                description={'Current Location'}
               />
             </MapView>
           </View>
@@ -213,6 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     padding: 20
   }
-});
+})
 
 export default Map
