@@ -6,8 +6,8 @@ import GeoLocation from 'react-native-geolocation-service'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Loading from './Loading/Loading'
-import Helper from './helpers/Helper'
-import GlobalStyles from './helpers/style'
+import Helper from './Helpers/Helper'
+import GlobalStyles from './Helpers/style'
 
 import backgroundImg from '../resources/img/home_bg2.png'
 

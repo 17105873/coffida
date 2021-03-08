@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import AsyncStorage from '@react-native-community/async-storage'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import Home from './Home'
+import Home from './StackIndex'
 import MapView from './MapView/MapView'
 import ListView from './ListView/Index'
 import User from './User/User'

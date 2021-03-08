@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { CommonActions } from '@react-navigation/native'
 
 import Loading from '../Loading/Loading'
-import Helper from '../helpers/Helper'
-import GlobalStyles from '../helpers/style'
+import Helper from '../Helpers/Helper'
+import GlobalStyles from '../Helpers/style'
 
 class UserDetails extends Component {
   constructor (props) {
@@ -177,11 +177,11 @@ class UserDetails extends Component {
             <Text style={styles.label}>Password:</Text>
             <TextInput placeholder='Enter Password' placeholderTextColor='red' style={styles.input} onChangeText={(password) => this.setState({ password })} value={this.state.password} secureTextEntry />
           </View>
-          <View style={styles.btnContainer}>
-            <TouchableOpacity style={styles.submitBtn} onPress={() => this.updateDetails()}>
+          <View style={[GlobalStyles.btnContainer, styles.btnContainer]}>
+            <TouchableOpacity style={GlobalStyles.submitBtn} onPress={() => this.updateDetails()}>
               <Text style={styles.submitBtnTxt}>Update Details</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitBtn} onPress={() => this.logOut()}>
+            <TouchableOpacity style={GlobalStyles.submitBtn} onPress={() => this.logOut()}>
               <Text style={styles.submitBtnTxt}>Log Out</Text>
             </TouchableOpacity>
           </View>
@@ -225,22 +225,11 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   btnContainer: {
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center',
     marginTop: 20
-  },
-  submitBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
-    margin: 10
   },
   submitBtnTxt: {
     fontSize: 25,
-    color: 'white',
-    fontFamily: 'MinionPro-Regular'
+    color: 'white'
   }
 })
 

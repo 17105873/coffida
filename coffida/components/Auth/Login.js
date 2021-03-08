@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import GlobalStyles from '../helpers/style'
+import GlobalStyles from '../Helpers/style'
 
 class Login extends Component{
   constructor(props){

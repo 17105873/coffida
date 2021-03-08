@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import {Picker} from '@react-native-picker/picker'
 
 import Loading from '../Loading/Loading'
-import Helper from '../helpers/Helper'
-import GlobalStyles from '../helpers/style'
+import Helper from '../Helpers/Helper'
+import GlobalStyles from '../Helpers/style'
 
 class ListView extends Component {
   constructor (props) {
@@ -23,7 +23,6 @@ class ListView extends Component {
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener("focus", () => {
       this.checkLoggedIn()
-
       this.getData()
     })
   }

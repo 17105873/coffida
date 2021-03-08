@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 
 import Loading from '../Loading/Loading'
-import Helper from '../helpers/Helper'
+import Helper from '../Helpers/Helper'
 
 import iconMarker from '../../resources/img/marker_sm.png'
 import iconMarkerLocation from '../../resources/img/marker_sm_blue.png'

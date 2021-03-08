@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { Text, TextInput, View, Button, FlatList, ScrollView, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, Modal, Pressable } from 'react-native'
+import { Text, View, FlatList, TouchableOpacity, ToastAndroid, Image, StyleSheet, ImageBackground, Modal, Pressable } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import Loading from '../Loading/Loading'
-import Helper from '../helpers/Helper'
-import GlobalStyles from '../helpers/style'
+import Helper from '../Helpers/Helper'
+import GlobalStyles from '../Helpers/style'
 
 const starBlank = '../../resources/img/star_rating_blank.png'
 const starActive = '../../resources/img/star_rating_active.png'
@@ -26,8 +26,7 @@ class Details extends Component {
       likeButton: [],
       actionButton: [],
       details: [],
-      images: [],
-      opacity: 1
+      images: []
     }
   }
 
