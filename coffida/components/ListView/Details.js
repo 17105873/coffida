@@ -449,10 +449,10 @@ class Details extends Component {
 
     if(this.state.favLocation == true) {
       favLocText = 'Unfavourite'
-      favLoc = false;
+      favLoc = false
     } else {
       favLocText = 'Favourite'
-      favLoc = true;
+      favLoc = true
     }
 
     if(this.state.isLoading == true) {
@@ -472,12 +472,12 @@ class Details extends Component {
             </View>
           </ImageBackground>
           <View style={styles.body}>
-            <View style={styles.btnContainer}>
-              <TouchableOpacity style={styles.submitBtn} onPress={() => this.favouriteLocation({favLoc})}>
-                <Text style={styles.submitBtnTxt}>{favLocText}</Text>
+            <View style={GlobalStyles.btnContainer}>
+              <TouchableOpacity style={GlobalStyles.submitBtn} onPress={() => this.favouriteLocation({favLoc})}>
+                <Text style={GlobalStyles.submitBtnTxt}>{favLocText}</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.submitBtn}
+                style={GlobalStyles.submitBtn}
                 onPress={() => {
                   this.props.navigation.navigate('Review', {
                     locationId: this.state.locationId,
@@ -485,7 +485,7 @@ class Details extends Component {
                   });
                 }}
               >
-                <Text style={styles.submitBtnTxt}>Review</Text>
+                <Text style={GlobalStyles.submitBtnTxt}>Review</Text>
               </TouchableOpacity>
             </View>
             <View>
@@ -571,23 +571,6 @@ const styles = StyleSheet.create({
   indReviewRating: {
     width: 30,
     height: 30
-  },
-  btnContainer: {
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center'
-  },
-  submitBtn: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'red',
-    margin: 10
-  },
-  submitBtnTxt: {
-    fontSize: 20,
-    color: 'white',
-    fontFamily: 'MinionPro-Regular'
   },
   actionBtnContainer: {
     flexDirection: 'row',

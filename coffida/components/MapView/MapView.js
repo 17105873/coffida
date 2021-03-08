@@ -57,29 +57,20 @@ class Map extends Component {
   }
 
   getData = async () => {
-
-    return fetch("http://10.0.2.2:3333/api/1.0.0/find", {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
-      }
-    })
-    .then((response) => {
-      if(response.status === 200){
-        return response.json()
-      } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+    Helper.getLocations().then((responseJson) => {
+      if (responseJson == 'Login'){
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return
+      } else if (responseJson == 'Error') {
+        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        this.setState({
+          isLoading: false,
+          mapData: responseJson
+        })
       }
-    })
-    .then((responseJson) => {
-      this.setState({
-        isLoading: false,
-        mapData: responseJson
-      })
     })
     .catch((error) => {
       console.log(error);
@@ -104,8 +95,8 @@ class Map extends Component {
               >
                 <View>
                   <View style={styles.mainDetails}>
-                    <Text style={styles.locationName}>{this.state.locationDetail.location_name}</Text>
-                    <Text style={styles.locationDistance}>{Helper.calculateDistance(this.state.latitude, this.state.longitude, this.state.locationDetail.latitude, this.state.locationDetail.longitude)} km</Text>
+                    <Text style={[GlobalStyles.locationName, styles.locationName]}>{this.state.locationDetail.location_name}</Text>
+                    <Text style={[GlobalStyles.locationDistance, styles.locationDistance]}>{Helper.calculateDistance(this.state.latitude, this.state.longitude, this.state.locationDetail.latitude, this.state.locationDetail.longitude)} km</Text>
                   </View>
                   <View style={styles.locationContainer}>
                     <Text style={styles.locationTown}>{this.state.locationDetail.location_town}</Text>
@@ -204,17 +195,8 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 30,
-    color: 'red',
-    fontFamily: 'Courier New',
-    fontWeight: 'bold',
-    flex: 3
   },
   locationDistance: {
-    color: 'red',
-    flex: 1,
-    paddingTop: 10,
-    fontFamily: 'Courier New',
-    fontWeight: 'bold',
     fontSize: 20
   },
   locationTown: {

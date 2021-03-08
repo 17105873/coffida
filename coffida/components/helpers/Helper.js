@@ -40,6 +40,27 @@ class Helper {
     })
   }
 
+  getLocations = async () => {
+
+    return fetch("http://10.0.2.2:3333/api/1.0.0/find", {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': await AsyncStorage.getItem('@session_token')
+      }
+    })
+    .then((response) => {
+      if(response.status === 200){
+        return response.json()
+      } else if (response.status === 401) {
+        return 'Login'
+      } else {
+        return 'Error'
+      }
+    })
+
+  }
+
   sortList(responseJson, sortBy) {
     var data = responseJson
     data = data.sort(this.sortBy(sortBy))

@@ -45,34 +45,26 @@ class ListView extends Component {
 
   getData = async () => {
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/find", {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': await AsyncStorage.getItem('@session_token')
-      }
-    })
-    .then((response) => {
-      if(response.status === 200){
-        return response.json()
-      } else if (response.status === 401) {
-        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT);
+    Helper.getLocations().then((responseJson) => {
+      if (responseJson == 'Login'){
+        ToastAndroid.show("You're not Logged In", ToastAndroid.SHORT)
         this.props.navigation.navigate('Login')
+        return
+      } else if (responseJson == 'Error') {
+        ToastAndroid.show("There Was An Error. Please Try Again", ToastAndroid.SHORT)
+        return
       } else {
-        throw "Something went wrong. Please try again";
+        this.setState({
+          isLoading: false,
+          listData: Helper.sortList(responseJson, this.state.sortBy)
+        })
       }
-    })
-    .then((responseJson) => {
-      //Sorting Data By Average Highest Overall Review
-      this.setState({
-        isLoading: false,
-        listData: Helper.sortList(responseJson, this.state.sortBy)
-      })
     })
     .catch((error) => {
       console.log(error);
       ToastAndroid.show(error, ToastAndroid.SHORT);
     })
+
   }
 
   activeSort(sortBy) {
