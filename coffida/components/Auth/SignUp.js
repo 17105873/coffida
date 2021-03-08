@@ -41,8 +41,11 @@ class SignUp extends Component {
       }
     }
 
-    if (this.state.password === '' || this.state.password.length < 5) {
+    if (this.state.password === '') {
       ToastAndroid.show('Please Enter Password', ToastAndroid.SHORT)
+      return
+    } else if (this.state.password.length < 5) {
+      ToastAndroid.show('Password Must Be At Least 5 Characters', ToastAndroid.SHORT)
       return
     }
 

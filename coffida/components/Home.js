@@ -203,7 +203,8 @@ const styles = StyleSheet.create({
   },
   noFavLocations: {
     fontSize: 20,
-    color: 'white'
+    color: 'white',
+    paddingLeft: 10
   },
   itemContainer: {
     padding: 10,
