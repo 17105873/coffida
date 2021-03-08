@@ -509,7 +509,7 @@ class Details extends Component {
               LisHeaderComponent={
                 <>
                 </>}
-              data={this.state.details.location_reviews}
+              data={Helper.sortList(this.state.details.location_reviews, 'review_id')}
               renderItem={({item}) => (
                 <View style={{borderBottomWidth: 1, borderColor: 'red'}}>
                   <View style={styles.ratingRow}>

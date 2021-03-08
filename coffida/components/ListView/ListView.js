@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10
   },
   header: {
-    color: 'white',
+    color: 'red',
     fontSize: 50,
     fontWeight: 'bold',
     textAlign: 'center'
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start'
   },
   sortLabel: {
-    color: 'white',
+    color: 'red',
     fontWeight: 'bold',
     fontSize: 20,
     padding: 10
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   pickerStyle: {
     height: 50,
     width: 200,
-    color: 'white',
+    color: 'red',
     fontWeight: 'bold'
   }
 })

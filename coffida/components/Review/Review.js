@@ -430,7 +430,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   header: {
-    color: 'white',
+    color: 'red',
+    fontWeight: 'bold',
     fontSize: 50,
     textAlign: 'center',
     opacity: 1
@@ -446,6 +447,7 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     fontSize: 20,
     color: 'red',
+    fontWeight: 'bold',
     fontFamily: 'Courier New'
   },
   btnContainer: {
@@ -462,7 +464,7 @@ const styles = StyleSheet.create({
   },
   takePhotoBtn: {
     margin: 5,
-    width: 125
+    width: 135
   },
   deletePhotoBtn: {
     margin: 5,

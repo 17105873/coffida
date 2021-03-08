@@ -21,6 +21,7 @@ export default StyleSheet.create({
   submitBtnTxt: {
     fontSize: 20,
     color: 'white',
+    fontWeight: 'bold',
     fontFamily: 'MinionPro-Regular'
   },
   inputContainer: {
@@ -46,6 +47,7 @@ export default StyleSheet.create({
     color: 'black',
     flex: 1,
     paddingTop: 5,
+    fontSize: 18,
     fontFamily: 'Courier New Bold'
   },
   loadingScrollContainer: {
