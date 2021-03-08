@@ -2,6 +2,9 @@
 Coffida is a Mobile Application For Searching And Reviewing Local Coffee Shops
 Author: Luke Knowles
 Student Id: 17105873
+Application Successful For 10 Day Extension
+Initial Deadline: 26th February 2021
+Revised Deadline: 8th March 2021
 
 ## Features Implemented
 All Endpoints have been implemented within the application
